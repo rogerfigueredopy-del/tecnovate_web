@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phone         String?
+  role          Role      @default(CLIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts  Account[]
+  sessions  Session[]
+  orders    Order[]
+  addresses Address[]
+  reviews   Review[]
+  wishlist  Wishlist[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  icon        String?
+  parentId    String?
+  parent      Category? @relation("SubCategories", fields: [parentId], references: [id])
+  children    Category[] @relation("SubCategories")
+  products    Product[]
+  createdAt   DateTime  @default(now())
+
+  @@map("categories")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String?  @db.Text
+  brand          String
+  sku            String?  @unique
+  price          Float
+  oldPrice       Float?
+  stock          Int      @default(0)
+  images         String[] // Cloudinary URLs
+  status         ProductStatus @default(ACTIVE)
+  featured       Boolean  @default(false)
+  categoryId     String
+  category       Category @relation(fields: [categoryId], references: [id])
+  specs          Json?    // { key: value } para especificaciones técnicas
+  pcBuilderSlot  PCBuilderSlot? // null si no aplica al PC builder
+  wattage        Int?     // Para componentes PC (consumo en watts)
+  socket         String?  // Para CPU/Motherboard
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  orderItems  OrderItem[]
+  reviews     Review[]
+  wishlist    Wishlist[]
+  buildItems  BuildItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(PENDING)
+  total       Float
+  addressId   String?
+  address     Address?    @relation(fields: [addressId], references: [id])
+  paymentId   String?
+  paymentMethod String?
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  items       OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+
+  @@map("order_items")
+}
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id])
+  label      String  @default("Casa")
+  street     String
+  city       String
+  department String
+  phone      String?
+  isDefault  Boolean @default(false)
+  orders     Order[]
+
+  @@map("addresses")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
+}
+
+model Wishlist {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@map("wishlist")
+}
+
+model PCBuild {
+  id        String      @id @default(cuid())
+  name      String?
+  userId    String?
+  total     Float
+  createdAt DateTime    @default(now())
+  items     BuildItem[]
+
+  @@map("pc_builds")
+}
+
+model BuildItem {
+  id        String        @id @default(cuid())
+  buildId   String
+  build     PCBuild       @relation(fields: [buildId], references: [id])
+  productId String
+  product   Product       @relation(fields: [productId], references: [id])
+  slot      PCBuilderSlot
+
+  @@map("build_items")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  OUT_OF_STOCK
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PCBuilderSlot {
+  CPU
+  MOTHERBOARD
+  RAM
+  GPU
+  STORAGE
+  PSU
+  CASE
+  COOLING
+}
