@@ -47,7 +47,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Error al subir imagen' }, { status: 500 })
   }
 }
-
-export const config = {
-  api: { bodyParser: false },
-}
