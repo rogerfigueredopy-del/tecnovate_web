@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { ProductGrid } from '@/components/ui/ProductGrid'
@@ -23,7 +24,7 @@ const SORT_OPTIONS = [
   { label: 'Más vendidos', value: 'popular' },
 ]
 
-export default function ProductsPage() {
+function ProductsPageInner() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -189,5 +190,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsPageInner />
+    </Suspense>
   )
 }

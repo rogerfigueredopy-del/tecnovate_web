@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from 'react'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -6,7 +7,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 export const dynamic = 'force-dynamic'
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter()
   const params = useSearchParams()
   const [tab, setTab] = useState<'login' | 'register'>(
@@ -173,5 +174,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageInner />
+    </Suspense>
   )
 }
