@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { CategoryGrid, GamerBanner } from '@/components/ui/CategoryGrid'
 import { ProductGrid } from '@/components/ui/ProductGrid'
 import { getFeaturedProducts } from '@/lib/products'
+export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const featured = await getFeaturedProducts(8)

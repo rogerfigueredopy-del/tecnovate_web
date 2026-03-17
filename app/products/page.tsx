@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { ProductGrid } from '@/components/ui/ProductGrid'
 import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
+export const dynamic = 'force-dynamic'
 
 const CATEGORIES = [
   { label: 'Todos', value: '' },
