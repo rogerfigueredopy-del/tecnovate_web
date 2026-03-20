@@ -2,63 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300;0,6..12,400;0,6..12,500;0,6..12,600;0,6..12,700;0,6..12,800;0,6..12,900;1,6..12,400&display=swap');
+
 :root {
-  --tv-accent: #00d4ff;
-  --tv-purple: #7c3aed;
-  --tv-green: #00e676;
-  --tv-danger: #ff4757;
-  --tv-amber: #ffb347;
+  --accent: #b769bd;
+  --accent-dark: #9b4fa6;
+  --accent-light: #d48fda;
+  --accent-bg: #faf0fb;
+  --text-primary: #1a1a2e;
+  --text-secondary: #555570;
+  --text-muted: #9090a8;
+  --border: #e8e8f2;
+  --bg: #ffffff;
+  --bg-secondary: #f7f7fc;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
 }
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    background-color: #030712;
-    color: #f1f5f9;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #111827;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #374151;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #4b5563;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
+  background: #f7f7fc;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
 }
-
-@layer utilities {
-  .line-clamp-2 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-
-  .bg-clip-text {
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-
-  .text-transparent {
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #f0f0f8; }
+::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 3px; }

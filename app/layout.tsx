@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Providers } from '@/components/Providers'
 import { Toaster } from 'react-hot-toast'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Tecnovate - Tecnología de Primera en Paraguay',
@@ -15,25 +12,20 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Tecnovate',
     description: 'Tecnología de Primera en Paraguay',
-    url: process.env.NEXT_PUBLIC_APP_URL,
     siteName: 'Tecnovate',
     locale: 'es_PY',
     type: 'website',
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={inter.className}>
+      <body>
         <Providers>
-          <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
+          <div style={{ minHeight: '100vh', background: '#f7f7fc', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
-            <main className="flex-1">
+            <main style={{ flex: 1 }}>
               {children}
             </main>
             <Footer />
@@ -42,9 +34,15 @@ export default function RootLayout({
             position="bottom-right"
             toastOptions={{
               style: {
-                background: '#1a1a26',
-                color: '#e8e8f0',
-                border: '1px solid #2a2a3e',
+                background: 'white',
+                color: '#1a1a2e',
+                border: '1px solid #e8e8f2',
+                borderRadius: '10px',
+                fontSize: '14px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              },
+              success: {
+                iconTheme: { primary: '#b769bd', secondary: 'white' },
               },
             }}
           />

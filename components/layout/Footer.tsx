@@ -2,38 +2,57 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 border-t border-gray-800 mt-16">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+    <footer style={{ background: 'var(--text-primary)', color: 'rgba(255,255,255,0.8)' }}>
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <span className="text-xl font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Tecnovate
-            </span>
-            <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+            <span className="text-xl font-black block mb-3" style={{ color: 'var(--accent-light)' }}>Tecnovate</span>
+            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
               Tecnología de primera en Paraguay. Ciudad del Este, Alto Paraná.
             </p>
-            <div className="flex gap-3 mt-4">
-              {[
-                { label: 'FB', href: '#' },
-                { label: 'IG', href: '#' },
-                { label: 'WA', href: '#' },
-              ].map(s => (
-                <a key={s.label} href={s.href} className="w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-400 hover:text-white transition-colors">
-                  {s.label}
+            <div className="flex gap-2">
+              {['FB', 'IG', 'TW', 'WA'].map(s => (
+                <a key={s} href="#" className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-colors" style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'var(--accent)'; (e.currentTarget as HTMLAnchorElement).style.color = 'white' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)' }}>
+                  {s}
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Products */}
+          {/* Categories */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Productos</h4>
-            <ul className="space-y-2.5">
-              {['Notebooks', 'Componentes PC', 'Gaming', 'Celulares', 'Monitores'].map(c => (
+            <h4 className="text-sm font-800 mb-4 text-white" style={{ fontWeight: 800 }}>Productos</h4>
+            <ul className="space-y-2">
+              {['Notebooks', 'Componentes PC', 'Gaming', 'Celulares', 'Monitores', 'Accesorios'].map(c => (
                 <li key={c}>
-                  <Link href={`/products?category=${c.toLowerCase().replace(' ', '-')}`} className="text-sm text-gray-500 hover:text-white transition-colors">
+                  <Link href={`/products?category=${c}`} className="text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-light)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.5)'}>
                     {c}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* PC Builder */}
+          <div>
+            <h4 className="text-sm font-800 mb-4 text-white" style={{ fontWeight: 800 }}>Zona Gamer</h4>
+            <ul className="space-y-2">
+              {[
+                { label: 'Armá tu PC', href: '/gamer' },
+                { label: 'Notebooks Gaming', href: '/products?category=Gaming' },
+                { label: 'Tarjetas Gráficas', href: '/products?q=rtx' },
+                { label: 'Procesadores', href: '/products?q=procesador' },
+              ].map(l => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-light)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.5)'}>
+                    {l.label}
                   </Link>
                 </li>
               ))}
@@ -42,16 +61,18 @@ export function Footer() {
 
           {/* Help */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Ayuda</h4>
-            <ul className="space-y-2.5">
+            <h4 className="text-sm font-800 mb-4 text-white" style={{ fontWeight: 800 }}>Ayuda</h4>
+            <ul className="space-y-2">
               {[
-                { label: 'Seguimiento de pedidos', href: '/track' },
+                { label: 'Rastrear pedido', href: '/track' },
                 { label: 'Devoluciones', href: '/returns' },
                 { label: 'Garantías', href: '/warranty' },
                 { label: 'Preguntas frecuentes', href: '/faq' },
               ].map(l => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-gray-500 hover:text-white transition-colors">
+                  <Link href={l.href} className="text-sm transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-light)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.5)'}>
                     {l.label}
                   </Link>
                 </li>
@@ -61,36 +82,45 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold mb-4">Contacto</h4>
-            <ul className="space-y-3 text-sm text-gray-500">
-              <li className="flex items-start gap-2">
-                <span className="shrink-0">📍</span>
-                <span>Ciudad del Este, Alto Paraná, Paraguay</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span>📱</span>
-                <a href="https://wa.me/595900000000" className="hover:text-green-400 transition-colors">+595 9XX XXX XXX</a>
-              </li>
-              <li className="flex items-center gap-2">
-                <span>✉️</span>
-                <a href="mailto:ventas@tecnovate.com.py" className="hover:text-cyan-400 transition-colors">ventas@tecnovate.com.py</a>
-              </li>
-              <li className="flex items-center gap-2">
-                <span>🕐</span>
-                <span>Lun–Sáb 8:00–18:00</span>
-              </li>
+            <h4 className="text-sm font-800 mb-4 text-white" style={{ fontWeight: 800 }}>Contacto</h4>
+            <ul className="space-y-3">
+              {[
+                { icon: '📍', text: 'Ciudad del Este, Alto Paraná' },
+                { icon: '📱', text: '+595 9XX XXX XXX' },
+                { icon: '✉️', text: 'ventas@tecnovate.com.py' },
+                { icon: '🕐', text: 'Lun–Sáb 8:00–18:00' },
+              ].map(i => (
+                <li key={i.text} className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  <span>{i.icon}</span>
+                  <span>{i.text}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-gray-600">
+        {/* Payments */}
+        <div className="border-t py-6 mb-6" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+          <p className="text-xs mb-3 text-center" style={{ color: 'rgba(255,255,255,0.4)' }}>Métodos de pago aceptados</p>
+          <div className="flex justify-center gap-3 flex-wrap">
+            {['💳 Bancard', '🌐 PayPal', '📱 Tigo Money', '💵 Efectivo'].map(m => (
+              <span key={m} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}>
+                {m}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
             © {new Date().getFullYear()} Tecnovate. Todos los derechos reservados.
           </p>
           <div className="flex gap-4">
             {['Términos y condiciones', 'Política de privacidad'].map(l => (
-              <Link key={l} href="#" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">
+              <Link key={l} href="#" className="text-xs transition-colors" style={{ color: 'rgba(255,255,255,0.3)' }}
+                onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)'}
+                onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.3)'}>
                 {l}
               </Link>
             ))}

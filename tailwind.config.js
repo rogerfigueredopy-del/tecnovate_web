@@ -7,23 +7,39 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Nunito Sans', 'Segoe UI', 'system-ui', 'sans-serif'],
+      },
       colors: {
-        tv: {
-          accent: '#00d4ff',
-          purple: '#7c3aed',
-          green: '#00e676',
-          danger: '#ff4757',
-          amber: '#ffb347',
-          dark: '#12121a',
-          card: '#1a1a26',
-          border: '#2a2a3e',
+        accent: {
+          DEFAULT: '#b769bd',
+          dark: '#9b4fa6',
+          light: '#d48fda',
+          bg: '#faf0fb',
+          bg2: '#f3e2f5',
+        },
+        brand: {
+          50: '#faf0fb',
+          100: '#f3e2f5',
+          200: '#e8c8ec',
+          300: '#d48fda',
+          400: '#c47fcb',
+          500: '#b769bd',
+          600: '#9b4fa6',
+          700: '#7d3a88',
+          800: '#5f2a6a',
+          900: '#421a4c',
         },
       },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+      boxShadow: {
+        card: '0 2px 12px rgba(0,0,0,0.07)',
+        'card-hover': '0 8px 32px rgba(183,105,189,0.15)',
+        'accent': '0 4px 14px rgba(183,105,189,0.35)',
       },
-      backgroundImage: {
-        'gamer-gradient': 'linear-gradient(135deg, #0f0f1a, #1a0030, #001a30)',
+      borderRadius: {
+        DEFAULT: '8px',
+        lg: '12px',
+        xl: '16px',
       },
     },
   },

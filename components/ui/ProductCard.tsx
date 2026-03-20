@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, ShoppingCart, Star } from 'lucide-react'
+import { ShoppingCart, Heart } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -26,73 +26,112 @@ export function ProductCard({ product }: { product: Product }) {
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     addItem({
       id: product.id,
       name: product.name,
       brand: product.brand,
       price: product.price,
-      image: product.images[0] || '/placeholder.png',
+      image: product.images[0] || '',
       slug: product.slug,
     })
-    toast.success('Agregado al carrito 🛒')
+    toast.success('¡Agregado al carrito!')
   }
 
   return (
-    <Link href={`/products/${product.slug}`} className="group">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-cyan-500/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/5">
+    <Link href={`/products/${product.slug}`}>
+      <div
+        className="group bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-250 flex flex-col h-full"
+        style={{
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow)',
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--accent)'
+          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)'
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 32px rgba(183,105,189,0.15)'
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)'
+          ;(e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--shadow)'
+        }}
+      >
         {/* Image */}
-        <div className="relative aspect-square bg-gray-800 overflow-hidden">
+        <div className="relative bg-white" style={{ aspectRatio: '1', padding: '12px' }}>
           {product.images[0] ? (
             <Image
               src={product.images[0]}
               alt={product.name}
               fill
-              className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+              className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 768px) 50vw, 25vw"
+              unoptimized
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl text-gray-600">📦</div>
+            <div className="w-full h-full flex items-center justify-center text-5xl text-gray-200">📦</div>
           )}
-          {discount && (
-            <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
-              -{discount}%
-            </span>
-          )}
-          {product.stock === 0 && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <span className="text-gray-300 font-semibold text-sm bg-gray-900 px-4 py-2 rounded-lg">Sin stock</span>
-            </div>
-          )}
+
+          {/* Badges */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {discount && discount > 0 && (
+              <span className="text-white text-xs font-bold px-2 py-0.5 rounded" style={{ background: '#dc2626', fontSize: '11px' }}>
+                -{discount}%
+              </span>
+            )}
+            {product.stock === 0 && (
+              <span className="text-white text-xs font-bold px-2 py-0.5 rounded bg-gray-500" style={{ fontSize: '11px' }}>
+                Sin stock
+              </span>
+            )}
+          </div>
+
+          {/* Wishlist button */}
           <button
-            onClick={e => { e.preventDefault(); toast('Agregado a favoritos ♡') }}
-            className="absolute top-3 right-3 p-2 bg-gray-900/80 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-800"
+            onClick={e => { e.preventDefault(); toast('♡ Agregado a favoritos') }}
+            className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md border"
+            style={{ borderColor: 'var(--border)' }}
           >
-            <Heart size={16} className="text-gray-400 hover:text-red-400" />
+            <Heart size={14} style={{ color: 'var(--text-muted)' }} />
           </button>
         </div>
 
         {/* Info */}
-        <div className="p-4">
-          <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wide mb-1">{product.brand}</p>
-          <h3 className="text-sm font-semibold text-gray-100 leading-snug mb-3 line-clamp-2 group-hover:text-white">
+        <div className="p-3 flex flex-col flex-1">
+          <p className="text-xs font-700 uppercase tracking-wide mb-1" style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 700 }}>
+            {product.brand}
+          </p>
+          <h3 className="text-sm leading-snug mb-2 flex-1 line-clamp-2" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
             {product.name}
           </h3>
 
-          <div className="flex items-end justify-between">
-            <div>
-              {product.oldPrice && (
-                <p className="text-xs text-gray-500 line-through">{formatPrice(product.oldPrice)}</p>
-              )}
-              <p className="text-lg font-bold text-green-400">{formatPrice(product.price)}</p>
-            </div>
-            <button
-              onClick={handleAdd}
-              disabled={product.stock === 0}
-              className="p-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-700 text-black rounded-xl transition-colors"
-            >
-              <ShoppingCart size={16} />
-            </button>
+          {/* Price */}
+          <div className="mt-auto">
+            {product.oldPrice && product.oldPrice > product.price && (
+              <p className="text-xs line-through" style={{ color: 'var(--text-muted)' }}>
+                {formatPrice(product.oldPrice)}
+              </p>
+            )}
+            <p className="text-base font-800" style={{ color: 'var(--accent)', fontWeight: 800 }}>
+              {formatPrice(product.price)}
+            </p>
           </div>
+
+          {/* Add to cart */}
+          <button
+            onClick={handleAdd}
+            disabled={product.stock === 0}
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-white text-sm font-700 transition-all disabled:opacity-40"
+            style={{
+              background: product.stock === 0 ? '#ccc' : 'var(--accent)',
+              fontWeight: 700,
+            }}
+            onMouseEnter={e => { if (product.stock > 0) (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent-dark)' }}
+            onMouseLeave={e => { if (product.stock > 0) (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent)' }}
+          >
+            <ShoppingCart size={15} />
+            {product.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
+          </button>
         </div>
       </div>
     </Link>
