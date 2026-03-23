@@ -1,10 +1,4 @@
 // app/api/admin/import-products/route.ts
-// ============================================================
-//  TECNOVATE – Importación masiva de productos desde Excel
-//  POST /api/admin/import-products
-//  Requiere header: Authorization: Bearer $ADMIN_SECRET
-// ============================================================
-
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -13,178 +7,106 @@ function verificarAdmin(req: NextRequest) {
   return auth === `Bearer ${process.env.ADMIN_SECRET}`
 }
 
-function slugify(texto: string): string {
-  return texto
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 100)
+function slugify(t: string) {
+  return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,100)
 }
 
-// Extraer marca del nombre del producto
-function extraerBrand(nombre: string): string {
-  const marcas = [
-    'Apple', 'Samsung', 'Xiaomi', 'Motorola', 'LG', 'Sony', 'Asus', 'Lenovo',
-    'HP', 'Dell', 'Acer', 'MSI', 'Gigabyte', 'Intel', 'AMD', 'NVIDIA', 'WD',
-    'Seagate', 'Kingston', 'Corsair', 'Logitech', 'Razer', 'HyperX', 'JBL',
-    'Philips', 'Panasonic', 'Huawei', 'Realme', 'OnePlus', 'Nokia', 'Garmin',
-    'Amazfit', 'TCL', 'Hisense', 'AOC', 'LG', 'ViewSonic', 'BenQ', 'ROG',
-  ]
-  const nombreUp = nombre.toLowerCase()
-  for (const marca of marcas) {
-    if (nombreUp.includes(marca.toLowerCase())) return marca
-  }
-  // Tomar la primera palabra como marca
+function extraerBrand(nombre: string) {
+  const marcas = ['Apple','Samsung','Xiaomi','Motorola','LG','Sony','Asus','Lenovo','HP','Dell','Acer','MSI','Gigabyte','Intel','AMD','NVIDIA','Corsair','Logitech','Razer','Huawei','Garmin','Amazfit','TCL','ROG','JBL','Kingston','WD']
+  for (const m of marcas) if (nombre.toLowerCase().includes(m.toLowerCase())) return m
   return nombre.split(' ')[0] || 'Sin marca'
 }
 
-// Mapa de categoría texto → slug en tu DB
-const CATEGORIA_MAP: Record<string, string> = {
-  'Celulares':     'celulares',
-  'Notebooks':     'notebooks',
-  'Gaming':        'gaming',
-  'Componentes':   'componentes',
-  'Monitores':     'monitores',
-  'Accesorios':    'accesorios',
-  'Electrónicos':  'accesorios',
-  'Networking':    'accesorios',
-  'Impresoras':    'accesorios',
+const SLUG_MAP: Record<string,string> = {
+  'Celulares':'celulares','Notebooks':'notebooks','Gaming':'gaming',
+  'Componentes':'componentes','Monitores':'monitores','Accesorios':'accesorios',
+  'Electrónicos':'accesorios','Networking':'accesorios','Impresoras':'accesorios',
 }
 
-// Cache de categorías para no hacer N queries
-const categoriaCache: Record<string, string> = {}
-
-async function obtenerCategoriaId(nombre: string): Promise<string> {
-  if (categoriaCache[nombre]) return categoriaCache[nombre]
-
-  const slug = CATEGORIA_MAP[nombre] || slugify(nombre)
-
-  let categoria = await prisma.category.findUnique({ where: { slug } })
-
-  if (!categoria) {
-    categoria = await prisma.category.create({
-      data: {
-        name: nombre,
-        slug,
-        icon: '📦',
-      },
-    })
-  }
-
-  categoriaCache[nombre] = categoria.id
-  return categoria.id
-}
-
-// ──────────────────────────────────────────────────────────────
-//  POST /api/admin/import-products
-// ──────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
-  if (!verificarAdmin(req)) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+  if (!verificarAdmin(req)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   let body: any
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
+  try { body = await req.json() } catch { return NextResponse.json({ error: 'JSON inválido' }, { status: 400 }) }
+
+  const { productos = [], reemplazar = false } = body
+  if (!Array.isArray(productos) || !productos.length) return NextResponse.json({ error: 'Sin productos' }, { status: 400 })
+
+  // Cargar categorías de una vez
+  let cats = await prisma.category.findMany()
+  if (!cats.length) {
+    const defaults = [
+      { name:'Celulares', slug:'celulares', icon:'📱' },
+      { name:'Notebooks', slug:'notebooks', icon:'💻' },
+      { name:'Gaming', slug:'gaming', icon:'🎮' },
+      { name:'Componentes PC', slug:'componentes', icon:'🖥️' },
+      { name:'Monitores', slug:'monitores', icon:'🖥' },
+      { name:'Accesorios', slug:'accesorios', icon:'🖱️' },
+    ]
+    for (const d of defaults) await prisma.category.upsert({ where:{slug:d.slug}, update:{}, create:d })
+    cats = await prisma.category.findMany()
   }
 
-  const {
-    productos = [],
-    reemplazar = false,
-    margen = 0.30,
-  } = body
+  const catMap: Record<string,string> = {}
+  for (const c of cats) { catMap[c.slug] = c.id; catMap[c.name.toLowerCase()] = c.id }
+  const fallbackCatId = cats[0].id
 
-  if (!Array.isArray(productos) || productos.length === 0) {
-    return NextResponse.json({ error: 'No se enviaron productos' }, { status: 400 })
+  function getCatId(nombre: string) {
+    const slug = SLUG_MAP[nombre] || slugify(nombre)
+    return catMap[slug] || catMap[nombre?.toLowerCase()] || fallbackCatId
   }
 
-  const stats = { insertados: 0, actualizados: 0, errores: 0, omitidos: 0 }
+  if (reemplazar) await prisma.product.deleteMany({})
+
+  const stats = { insertados: 0, errores: 0, omitidos: 0 }
   const erroresDetalle: string[] = []
 
-  // Borrar todo si se pidió reemplazar
-  if (reemplazar) {
-    await prisma.product.deleteMany({})
-  }
+  for (let i = 0; i < productos.length; i += 50) {
+    const lote = productos.slice(i, i + 50)
+    await Promise.allSettled(lote.map(async (p: any) => {
+      try {
+        const nombre = p.nombre?.trim()
+        if (!nombre) { stats.omitidos++; return }
+        const precioUSD = parseFloat(p.precio_usd) || 0
+        if (precioUSD <= 0) { stats.omitidos++; return }
 
-  // Procesar en lotes de 50 para no saturar Supabase
-  const CHUNK = 50
-  for (let i = 0; i < productos.length; i += CHUNK) {
-    const lote = productos.slice(i, i + CHUNK)
+        const categoryId = getCatId(p.categoria || 'Accesorios')
+        const brand = extraerBrand(nombre)
+        const sku = p.sku ? String(p.sku) : null
+        const baseSlug = p.slug || slugify(nombre)
+        const slug = sku ? `${baseSlug}-${sku}` : baseSlug
 
-    await Promise.allSettled(
-      lote.map(async (p: any) => {
-        try {
-          const nombre = p.nombre?.trim()
-          if (!nombre) { stats.omitidos++; return }
-
-          // precio_usd → lo guardamos en `price` (en USD)
-          const precioUSD = parseFloat(p.precio_usd) || 0
-          if (precioUSD <= 0) { stats.omitidos++; return }
-
-          const categoriaId = await obtenerCategoriaId(p.categoria || 'Accesorios')
-          const brand = extraerBrand(nombre)
-
-          // Slug único: usar el del JSON o generarlo
-          let slug = p.slug || slugify(nombre)
-
-          // Verificar duplicados de slug (agregar SKU si colisiona)
-          const existente = await prisma.product.findUnique({ where: { slug } })
-          if (existente && existente.sku !== p.sku) {
-            slug = `${slug}-${p.sku || Date.now()}`
-          }
-
-          const data = {
-            name: nombre,
-            slug,
-            brand,
-            sku: p.sku || null,
-            // Guardamos el precio en USD — el frontend convierte con la API de cambio
-            price: precioUSD,
-            oldPrice: null,
-            stock: parseInt(p.stock) || 999,
-            images: p.imagen ? [p.imagen] : [],
-            status: 'ACTIVE' as const,
-            featured: false,
-            categoryId,
-            description: p.descripcion || null,
-            specs: p.sku ? { codigo_proveedor: p.sku, url_proveedor: p.url_proveedor || '' } : undefined,
-          }
-
-          await prisma.product.upsert({
-            where: { sku: p.sku || `no-sku-${slug}` },
-            update: data,
-            create: data,
-          })
-
-          stats.insertados++
-        } catch (err: any) {
-          stats.errores++
-          if (erroresDetalle.length < 5) {
-            erroresDetalle.push(`${p.sku || p.nombre}: ${err.message}`)
-          }
+        const data = {
+          name: nombre, slug, brand,
+          sku: sku || undefined,
+          price: precioUSD,
+          stock: parseInt(p.stock) || 999,
+          images: p.imagen ? [p.imagen] : [],
+          status: 'ACTIVE' as const,
+          featured: false,
+          categoryId,
+          description: null,
+          specs: { codigo_proveedor: sku || '', url_proveedor: p.url_proveedor || '' } as any,
         }
-      })
-    )
+
+        await prisma.product.upsert({
+          where: { slug },
+          update: { ...data, slug: undefined },
+          create: data,
+        })
+        stats.insertados++
+      } catch (err: any) {
+        stats.errores++
+        if (erroresDetalle.length < 3) erroresDetalle.push(`${p.sku}: ${err.message}`)
+      }
+    }))
   }
 
-  return NextResponse.json({
-    ok: true,
-    stats,
-    total_enviados: productos.length,
-    errores_muestra: erroresDetalle,
-    timestamp: new Date().toISOString(),
-  })
+  return NextResponse.json({ ok: true, stats, errores_muestra: erroresDetalle, timestamp: new Date().toISOString() })
 }
 
-// GET — verificar que el endpoint existe
 export async function GET(req: NextRequest) {
-  if (!verificarAdmin(req)) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+  if (!verificarAdmin(req)) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   const total = await prisma.product.count()
   return NextResponse.json({ ok: true, total_productos: total })
 }
