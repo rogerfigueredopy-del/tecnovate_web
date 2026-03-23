@@ -1,4 +1,5 @@
 'use client'
+import { ExchangeRateBar } from '@/components/ui/ExchangeRate'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useRef, useEffect } from 'react'
@@ -139,9 +140,10 @@ export function Navbar() {
     <>
       {/* Top bar */}
       <div style={{ background: 'var(--accent)', color: 'white' }} className="text-xs py-1.5">
-        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-          <span>🚚 Envíos a todo Paraguay | Retirá en local · Ciudad del Este</span>
-          <div className="flex gap-4">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center gap-4">
+          <span className="shrink-0">🚚 Envíos a todo Paraguay | Retirá en local · Ciudad del Este</span>
+          <ExchangeRateBar />
+          <div className="flex gap-4 shrink-0">
             <Link href="/track" className="hover:underline opacity-90">Rastrear pedido</Link>
             <Link href="/about" className="hover:underline opacity-90">Nosotros</Link>
             <Link href="/contact" className="hover:underline opacity-90">Contacto</Link>
