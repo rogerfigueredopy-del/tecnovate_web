@@ -1,63 +1,76 @@
 import Link from 'next/link'
 import { HeroSection } from '@/components/ui/HeroSection'
-import { CategoryGrid, GamerBanner, SectionTitle } from '@/components/ui/CategoryGrid'
+import { CategoryGrid, GamerBanner, PromosBanner, SectionTitle } from '@/components/ui/CategoryGrid'
 import { ProductGrid } from '@/components/ui/ProductGrid'
-import { getFeaturedProducts } from '@/lib/products'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 async function getHomeData() {
   try {
-    const [featured, gaming, celulares, ofertas] = await Promise.all([
+    const [featured, gaming, celulares, ofertas, notebooks] = await Promise.all([
       prisma.product.findMany({
         where: { featured: true, status: 'ACTIVE' },
         include: { category: { select: { name: true, slug: true } } },
-        take: 8, orderBy: { createdAt: 'desc' },
+        take: 8,
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.product.findMany({
         where: { status: 'ACTIVE', category: { name: 'Gaming' } },
         include: { category: { select: { name: true, slug: true } } },
-        take: 8, orderBy: { price: 'desc' },
+        take: 8,
+        orderBy: { price: 'desc' },
       }),
       prisma.product.findMany({
         where: { status: 'ACTIVE', category: { name: 'Celulares' } },
         include: { category: { select: { name: true, slug: true } } },
-        take: 8, orderBy: { price: 'desc' },
+        take: 8,
+        orderBy: { price: 'desc' },
       }),
       prisma.product.findMany({
         where: { status: 'ACTIVE', oldPrice: { not: null } },
         include: { category: { select: { name: true, slug: true } } },
-        take: 8, orderBy: { createdAt: 'desc' },
+        take: 8,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.product.findMany({
+        where: { status: 'ACTIVE', category: { name: 'Notebooks' } },
+        include: { category: { select: { name: true, slug: true } } },
+        take: 8,
+        orderBy: { price: 'desc' },
       }),
     ])
-    return { featured, gaming, celulares, ofertas }
+    return { featured, gaming, celulares, ofertas, notebooks }
   } catch {
-    return { featured: [], gaming: [], celulares: [], ofertas: [] }
+    return { featured: [], gaming: [], celulares: [], ofertas: [], notebooks: [] }
   }
 }
 
 export default async function HomePage() {
-  const { featured, gaming, celulares, ofertas } = await getHomeData()
+  const { featured, gaming, celulares, ofertas, notebooks } = await getHomeData()
 
   return (
-    <div>
+    <div style={{ background: 'var(--bg-secondary)' }}>
+
+      {/* Hero carousel */}
       <HeroSection />
+
+      {/* Category icons */}
       <CategoryGrid />
 
-      {/* Info bar - Nissei style */}
+      {/* Info bar */}
       <div className="bg-white border-y" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 py-3 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { icon: '🚚', title: 'Envío Express', desc: 'Ciudad del Este mismo día' },
-            { icon: '💳', title: 'Pagos seguros', desc: 'Bancard · PayPal · Efectivo' },
-            { icon: '🔄', title: 'Devoluciones', desc: '30 días sin preguntas' },
-            { icon: '🛡️', title: 'Garantía oficial', desc: 'Todos los productos' },
+            { icon: '🚚', title: 'Envío Express',      desc: 'Ciudad del Este mismo día' },
+            { icon: '💳', title: 'Pagos seguros',       desc: 'Bancard · PayPal · Efectivo' },
+            { icon: '🔄', title: 'Devoluciones',        desc: '30 días sin preguntas' },
+            { icon: '🛡️', title: 'Garantía oficial',   desc: 'Todos los productos' },
           ].map(item => (
             <div key={item.title} className="flex items-center gap-3 py-1">
               <span className="text-2xl">{item.icon}</span>
               <div>
-                <p className="text-sm font-700" style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '13px' }}>{item.title}</p>
+                <p className="text-sm" style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '13px' }}>{item.title}</p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{item.desc}</p>
               </div>
             </div>
@@ -68,9 +81,16 @@ export default async function HomePage() {
       {/* Ofertas */}
       {ofertas.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-4">
-            <SectionTitle>🔥 Ofertas Especiales</SectionTitle>
-            <Link href="/products?sale=true" className="text-sm font-600" style={{ color: 'var(--accent)', fontWeight: 600 }}>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full" style={{ background: 'var(--accent)' }} />
+              <SectionTitle>🔥 Ofertas Especiales</SectionTitle>
+            </div>
+            <Link
+              href="/products?sale=true"
+              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
+            >
               Ver todas →
             </Link>
           </div>
@@ -78,14 +98,22 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Gamer Banner */}
       <GamerBanner />
 
       {/* Gaming */}
       {gaming.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-4">
-            <SectionTitle>🎮 Zona Gaming</SectionTitle>
-            <Link href="/products?category=Gaming" className="text-sm font-600" style={{ color: 'var(--accent)', fontWeight: 600 }}>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full" style={{ background: '#9b4fa6' }} />
+              <SectionTitle>🎮 Zona Gaming</SectionTitle>
+            </div>
+            <Link
+              href="/products?category=Gaming"
+              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
+            >
               Ver todo →
             </Link>
           </div>
@@ -93,12 +121,39 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Notebooks */}
+      {notebooks.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full" style={{ background: '#7b2d9e' }} />
+              <SectionTitle>💻 Notebooks 2025</SectionTitle>
+            </div>
+            <Link
+              href="/products?category=Notebooks"
+              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
+            >
+              Ver todos →
+            </Link>
+          </div>
+          <ProductGrid products={notebooks} />
+        </section>
+      )}
+
       {/* Celulares */}
       {celulares.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-4">
-            <SectionTitle>📱 Celulares y Smartphones</SectionTitle>
-            <Link href="/products?category=Celulares" className="text-sm font-600" style={{ color: 'var(--accent)', fontWeight: 600 }}>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full" style={{ background: '#c47fcb' }} />
+              <SectionTitle>📱 Celulares y Smartphones</SectionTitle>
+            </div>
+            <Link
+              href="/products?category=Celulares"
+              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
+            >
               Ver todos →
             </Link>
           </div>
@@ -106,12 +161,22 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Featured */}
+      {/* Promos banners */}
+      <PromosBanner />
+
+      {/* Destacados */}
       {featured.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-4">
-            <SectionTitle>⭐ Productos Destacados</SectionTitle>
-            <Link href="/products" className="text-sm font-600" style={{ color: 'var(--accent)', fontWeight: 600 }}>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-6 rounded-full" style={{ background: '#d48fda' }} />
+              <SectionTitle>⭐ Productos Destacados</SectionTitle>
+            </div>
+            <Link
+              href="/products"
+              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
+            >
               Ver todos →
             </Link>
           </div>
@@ -119,27 +184,41 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Banner */}
-      <section className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid md:grid-cols-2 gap-4">
-          <Link href="/products?category=Notebooks" className="rounded-xl overflow-hidden relative flex items-center p-6 hover:-translate-y-1 transition-transform" style={{ background: 'linear-gradient(135deg, #1a3a6e, #0a1a3e)', minHeight: '160px' }}>
-            <div>
-              <p className="text-xs font-700 mb-1" style={{ color: '#60a5fa', fontWeight: 700, textTransform: 'uppercase' }}>Últimos modelos</p>
-              <h3 className="text-xl font-900 text-white mb-2" style={{ fontWeight: 900 }}>Notebooks 2025</h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>Intel Core Ultra · AMD Ryzen AI</p>
-            </div>
-            <span className="absolute right-6 text-6xl opacity-20">💻</span>
-          </Link>
-          <Link href="/products?category=Componentes&q=rtx" className="rounded-xl overflow-hidden relative flex items-center p-6 hover:-translate-y-1 transition-transform" style={{ background: 'linear-gradient(135deg, #3d1a5c, #1a0a2e)', minHeight: '160px' }}>
-            <div>
-              <p className="text-xs font-700 mb-1" style={{ color: '#d48fda', fontWeight: 700, textTransform: 'uppercase' }}>RTX 50 Series</p>
-              <h3 className="text-xl font-900 text-white mb-2" style={{ fontWeight: 900 }}>Tarjetas Gráficas</h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>La nueva generación ya llegó</p>
-            </div>
-            <span className="absolute right-6 text-6xl opacity-20">🎮</span>
-          </Link>
+      {/* CTA final */}
+      <section
+        className="relative overflow-hidden py-16 my-6 mx-4 rounded-2xl"
+        style={{ background: 'linear-gradient(135deg, #2d0a40 0%, #7b2d9e 50%, #b769bd 100%)' }}
+      >
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }}
+        />
+        <div className="relative max-w-xl mx-auto text-center text-white px-4">
+          <div className="text-5xl mb-4">💜</div>
+          <h2 className="text-3xl font-black mb-3">¿Necesitás asesoría?</h2>
+          <p className="opacity-80 mb-6 text-sm leading-relaxed">
+            Nuestro equipo de Ciudad del Este te ayuda a elegir el equipo ideal para tu presupuesto.
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link
+              href="/contact"
+              className="px-7 py-3 rounded-xl font-black text-sm transition-all hover:scale-105"
+              style={{ background: 'white', color: '#7b2d9e' }}
+            >
+              Contactanos
+            </Link>
+            <Link
+              href="/products"
+              className="px-7 py-3 rounded-xl font-black text-sm border-2 transition-all hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}
+            >
+              Ver productos
+            </Link>
+          </div>
         </div>
       </section>
+
+      <div className="pb-8" />
     </div>
   )
 }
