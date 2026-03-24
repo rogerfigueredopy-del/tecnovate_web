@@ -1,15 +1,17 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const STATUSES = [
-  { value: 'PENDING', label: 'Pendiente' },
-  { value: 'PAID', label: 'Pagado' },
-  { value: 'PROCESSING', label: 'Procesando' },
-  { value: 'SHIPPED', label: 'Enviado' },
-  { value: 'DELIVERED', label: 'Entregado' },
-  { value: 'CANCELLED', label: 'Cancelado' },
+  { value: 'PENDING',    label: 'Pendiente',   color: '#d97706' },
+  { value: 'PAID',       label: 'Pagado',       color: '#16a34a' },
+  { value: 'PROCESSING', label: 'Procesando',   color: 'var(--accent)' },
+  { value: 'SHIPPED',    label: 'Enviado',      color: '#2563eb' },
+  { value: 'DELIVERED',  label: 'Entregado',    color: '#16a34a' },
+  { value: 'CANCELLED',  label: 'Cancelado',    color: '#dc2626' },
+  { value: 'REFUNDED',   label: 'Reembolsado',  color: '#9ca3af' },
 ]
 
 export function AdminOrderStatus({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
@@ -38,15 +40,34 @@ export function AdminOrderStatus({ orderId, currentStatus }: { orderId: string; 
   }
 
   return (
-    <select
-      value={status}
-      onChange={e => handleChange(e.target.value)}
-      disabled={saving}
-      className="bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-cyan-500 cursor-pointer disabled:opacity-50"
-    >
-      {STATUSES.map(s => (
-        <option key={s.value} value={s.value}>{s.label}</option>
-      ))}
-    </select>
+    <div className="relative">
+      {saving ? (
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
+          style={{ background: 'var(--accent-bg)' }}>
+          <Loader2 size={12} className="animate-spin" style={{ color: 'var(--accent)' }} />
+          <span className="text-xs font-bold" style={{ color: 'var(--accent)' }}>Guardando...</span>
+        </div>
+      ) : (
+        <div className="relative">
+          <select
+            value={status}
+            onChange={e => handleChange(e.target.value)}
+            disabled={saving}
+            className="appearance-none text-xs font-black pl-3 pr-7 py-2 rounded-xl cursor-pointer outline-none"
+            style={{
+              border: '1.5px solid var(--border)',
+              background: 'white',
+              color: 'var(--text-primary)',
+            }}
+          >
+            {STATUSES.map(s => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
+          <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ color: 'var(--text-muted)' }} />
+        </div>
+      )}
+    </div>
   )
 }
