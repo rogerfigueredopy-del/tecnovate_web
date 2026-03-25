@@ -4,19 +4,78 @@ import { useSession } from 'next-auth/react'
 import { useCartStore } from '@/lib/store/cart'
 import { formatPrice } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { PayPalButtons } from '@paypal/react-paypal-js'
-import { CreditCard, Globe, Banknote, Phone, Loader2 } from 'lucide-react'
+import { CreditCard, Globe, Banknote, Phone, Loader2, MapPin, ChevronDown, ShieldCheck, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
+
+const DEPARTMENTS = [
+  'Alto Paraná','Central','Asunción','Itapúa','Caaguazú',
+  'Cordillera','Guairá','Paraguarí','Misiones','Ñeembucú',
+  'Amambay','Canindeyú','Concepción','Presidente Hayes','Boquerón','Alto Paraguay',
+]
+
+const PAYMENT_METHODS = [
+  { id: 'bancard',  icon: '💳', label: 'Bancard',         desc: 'Visa, Mastercard, Amex' },
+  { id: 'paypal',   icon: '🌐', label: 'PayPal',          desc: 'Pago internacional' },
+  { id: 'transfer', icon: '📱', label: 'Tigo Money',      desc: 'Transferencia bancaria' },
+  { id: 'cash',     icon: '💵', label: 'Efectivo / WS',   desc: 'Coordinamos por WhatsApp' },
+] as const
+
+type PayMethod = typeof PAYMENT_METHODS[number]['id']
+
+const inputCls = "w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-colors"
+const inputStyle = { border: '1.5px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
+const focusAccent = (e: React.FocusEvent<any>) => (e.target.style.borderColor = 'var(--accent)')
+const blurBorder  = (e: React.FocusEvent<any>) => (e.target.style.borderColor = 'var(--border)')
+
+function Label({ children }: { children: React.ReactNode }) {
+  return <label className="block text-xs font-black mb-1.5" style={{ color: 'var(--text-secondary)' }}>{children}</label>
+}
 
 export default function CheckoutPage() {
   const { data: session } = useSession()
   const { items, total, clearCart } = useCartStore()
   const router = useRouter()
-  const [payMethod, setPayMethod] = useState<'bancard' | 'paypal' | 'transfer' | 'cash'>('bancard')
-  const [address, setAddress] = useState({ street: '', city: '', department: 'Alto Paraná', phone: '' })
-  const [loading, setLoading] = useState(false)
 
+  const [payMethod, setPayMethod] = useState<PayMethod>('bancard')
+  const [address, setAddress] = useState({
+    street: '', city: 'Ciudad del Este', department: 'Alto Paraná', phone: '',
+  })
+  const [loading, setLoading] = useState(false)
   const grandTotal = total()
+
+  const setAddr = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    setAddress(a => ({ ...a, [k]: e.target.value }))
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-secondary)' }}>
+        <div className="text-center">
+          <p className="text-lg font-black mb-4" style={{ color: 'var(--text-primary)' }}>Tu carrito está vacío</p>
+          <Link href="/products" className="px-6 py-3 rounded-xl font-black text-white text-sm"
+            style={{ background: 'var(--accent)' }}>
+            Ver productos
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-secondary)' }}>
+        <div className="text-center">
+          <p className="text-lg font-black mb-2" style={{ color: 'var(--text-primary)' }}>Necesitás iniciar sesión</p>
+          <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>para completar tu compra</p>
+          <Link href="/login?callbackUrl=/checkout" className="px-6 py-3 rounded-xl font-black text-white text-sm"
+            style={{ background: 'var(--accent)' }}>
+            Iniciar sesión
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   const createOrder = async () => {
     const res = await fetch('/api/orders', {
@@ -24,11 +83,12 @@ export default function CheckoutPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items, total: grandTotal, address }),
     })
+    if (!res.ok) throw new Error('Error al crear pedido')
     return res.json()
   }
 
   const handleBancard = async () => {
-    if (!address.street) { toast.error('Completá la dirección de entrega'); return }
+    if (!address.street) { toast.error('Completá la dirección'); return }
     setLoading(true)
     try {
       const order = await createOrder()
@@ -38,175 +98,271 @@ export default function CheckoutPage() {
         body: JSON.stringify({ method: 'bancard', orderId: order.id, amount: grandTotal }),
       })
       const data = await res.json()
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl
-      }
-    } catch {
-      toast.error('Error al procesar el pago')
-    } finally {
-      setLoading(false)
-    }
+      if (data.redirectUrl) window.location.href = data.redirectUrl
+    } catch { toast.error('Error al procesar el pago') }
+    finally { setLoading(false) }
   }
 
   const handleCash = async () => {
-    if (!address.phone) { toast.error('Ingresá tu teléfono para coordinar'); return }
+    if (!address.phone) { toast.error('Ingresá tu teléfono'); return }
     setLoading(true)
     try {
-      await createOrder()
+      const order = await createOrder()
       clearCart()
-      router.push('/checkout/success?method=cash')
-    } catch {
-      toast.error('Error al crear el pedido')
-    } finally {
-      setLoading(false)
-    }
+      router.push(`/checkout/success?orderId=${order.id}&method=cash`)
+    } catch { toast.error('Error al crear el pedido') }
+    finally { setLoading(false) }
+  }
+
+  const handleTransfer = async () => {
+    if (!address.street) { toast.error('Completá la dirección'); return }
+    setLoading(true)
+    try {
+      const order = await createOrder()
+      clearCart()
+      router.push(`/checkout/success?orderId=${order.id}&method=transfer`)
+    } catch { toast.error('Error al crear el pedido') }
+    finally { setLoading(false) }
   }
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-5xl">
-      <h1 className="text-2xl font-black mb-8">Finalizar Compra</h1>
+    <div style={{ background: 'var(--bg-secondary)', minHeight: '100vh' }}>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left: address + payment */}
-        <div className="space-y-6">
-          {/* Delivery address */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h2 className="font-bold mb-4">📍 Dirección de entrega</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Dirección completa *</label>
-                <input value={address.street} onChange={e => setAddress(a => ({ ...a, street: e.target.value }))} placeholder="Calle, Número, Barrio" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-cyan-500 text-gray-100" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Ciudad *</label>
-                  <input value={address.city} onChange={e => setAddress(a => ({ ...a, city: e.target.value }))} placeholder="Ciudad del Este" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-cyan-500 text-gray-100" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-400 mb-1.5">Departamento</label>
-                  <select value={address.department} onChange={e => setAddress(a => ({ ...a, department: e.target.value }))} className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-cyan-500 text-gray-100">
-                    {['Alto Paraná','Central','Asunción','Canindeyú','Itapúa','Cordillera','Guairá','Caaguazú'].map(d => <option key={d}>{d}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Teléfono / WhatsApp *</label>
-                <input value={address.phone} onChange={e => setAddress(a => ({ ...a, phone: e.target.value }))} placeholder="+595 9XX XXX XXX" className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-cyan-500 text-gray-100" />
-              </div>
-            </div>
+      {/* ── Header ─────────────────────────────────────────── */}
+      <div className="bg-white border-b" style={{ borderColor: 'var(--border)' }}>
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black" style={{ color: 'var(--text-primary)' }}>Finalizar Compra</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              {items.length} producto{items.length !== 1 ? 's' : ''} · {formatPrice(grandTotal)}
+            </p>
           </div>
-
-          {/* Payment method */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h2 className="font-bold mb-4">💳 Método de pago</h2>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {[
-                { id: 'bancard', icon: <CreditCard size={18} />, label: 'Bancard', sub: 'Visa, Mastercard, Amex' },
-                { id: 'paypal', icon: <Globe size={18} />, label: 'PayPal', sub: 'Pago internacional' },
-                { id: 'transfer', icon: <Banknote size={18} />, label: 'Transferencia', sub: 'Banco / Tigo Money' },
-                { id: 'cash', icon: <Phone size={18} />, label: 'Efectivo', sub: 'Coordinar por WhatsApp' },
-              ].map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => setPayMethod(m.id as any)}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    payMethod === m.id
-                      ? 'border-cyan-500 bg-cyan-500/10'
-                      : 'border-gray-700 hover:border-gray-600'
-                  }`}
-                >
-                  <div className={`mb-1 ${payMethod === m.id ? 'text-cyan-400' : 'text-gray-400'}`}>{m.icon}</div>
-                  <div className="text-sm font-semibold">{m.label}</div>
-                  <div className="text-xs text-gray-500">{m.sub}</div>
-                </button>
-              ))}
-            </div>
-
-            {/* Payment actions */}
-            {payMethod === 'bancard' && (
-              <button onClick={handleBancard} disabled={loading} className="w-full flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-700 text-black font-bold py-3.5 rounded-xl transition-colors">
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
-                Pagar con Bancard
-              </button>
-            )}
-
-            {payMethod === 'paypal' && (
-              <div className="rounded-xl overflow-hidden">
-                <PayPalButtons
-                  createOrder={async () => {
-                    const order = await createOrder()
-                    const res = await fetch('/api/payments', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ method: 'paypal', orderId: order.id, amount: grandTotal }),
-                    })
-                    const data = await res.json()
-                    return data.paypalOrderId
-                  }}
-                  onApprove={async (data) => {
-                    clearCart()
-                    router.push(`/checkout/success?orderId=${data.orderID}&method=paypal`)
-                  }}
-                />
-              </div>
-            )}
-
-            {payMethod === 'transfer' && (
-              <div className="bg-gray-800 rounded-xl p-4 text-sm">
-                <p className="font-semibold mb-2">Datos para transferencia:</p>
-                <p className="text-gray-300">Banco: <span className="text-white">Banco Continental</span></p>
-                <p className="text-gray-300">Cuenta: <span className="text-white">0000-0000-00</span></p>
-                <p className="text-gray-300">Tigo Money: <span className="text-white">+595 9XX XXX XXX</span></p>
-                <p className="text-xs text-gray-500 mt-3">Enviá el comprobante a nuestro WhatsApp y confirmamos tu pedido en minutos.</p>
-                <button onClick={handleCash} className="mt-3 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
-                  Confirmar pedido y enviar comprobante
-                </button>
-              </div>
-            )}
-
-            {payMethod === 'cash' && (
-              <div>
-                <div className="bg-gray-800 rounded-xl p-4 text-sm mb-3">
-                  <p className="text-gray-300">Coordinamos la entrega o retiro en local por WhatsApp.</p>
-                  <p className="text-xs text-gray-500 mt-1">Horario: Lun–Sáb 8:00–18:00 hs</p>
-                </div>
-                <button onClick={handleCash} disabled={loading} className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 text-white font-bold py-3.5 rounded-xl transition-colors">
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : null}
-                  Confirmar pedido (pago en efectivo)
-                </button>
-              </div>
-            )}
+          <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: '#16a34a' }}>
+            <Lock size={13} />
+            Pago seguro
           </div>
         </div>
+      </div>
 
-        {/* Right: order summary */}
-        <div>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 sticky top-24">
-            <h2 className="font-bold mb-4">Resumen del pedido</h2>
-            <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-              {items.map(item => (
-                <div key={item.id} className="flex justify-between items-start text-sm">
-                  <div className="flex-1 mr-4">
-                    <p className="font-medium leading-tight">{item.name}</p>
-                    <p className="text-xs text-gray-500">x{item.quantity}</p>
-                  </div>
-                  <p className="font-semibold shrink-0">{formatPrice(item.price * item.quantity)}</p>
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+          {/* ── Columna izquierda ──────────────────────────── */}
+          <div className="lg:col-span-3 space-y-5">
+
+            {/* Dirección */}
+            <div className="bg-white rounded-2xl p-6" style={{ border: '1.5px solid var(--border)' }}>
+              <h2 className="font-black text-base mb-5 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                <MapPin size={17} style={{ color: 'var(--accent)' }} />
+                Dirección de entrega
+              </h2>
+              <div className="space-y-3">
+                <div>
+                  <Label>Dirección completa *</Label>
+                  <input value={address.street} onChange={setAddr('street')}
+                    placeholder="Calle, Número, Barrio"
+                    className={inputCls} style={inputStyle} onFocus={focusAccent} onBlur={blurBorder} />
                 </div>
-              ))}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Ciudad *</Label>
+                    <input value={address.city} onChange={setAddr('city')}
+                      placeholder="Ciudad del Este"
+                      className={inputCls} style={inputStyle} onFocus={focusAccent} onBlur={blurBorder} />
+                  </div>
+                  <div>
+                    <Label>Departamento</Label>
+                    <div className="relative">
+                      <select value={address.department} onChange={setAddr('department')}
+                        className={`${inputCls} appearance-none pr-8`} style={inputStyle}
+                        onFocus={focusAccent} onBlur={blurBorder}>
+                        {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+                      </select>
+                      <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                        style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label>Teléfono / WhatsApp *</Label>
+                  <input value={address.phone} onChange={setAddr('phone')}
+                    placeholder="+595 9XX XXX XXX"
+                    className={inputCls} style={inputStyle} onFocus={focusAccent} onBlur={blurBorder} />
+                </div>
+              </div>
             </div>
-            <div className="border-t border-gray-800 pt-4 space-y-2">
-              <div className="flex justify-between text-sm text-gray-400">
-                <span>Subtotal</span><span>{formatPrice(grandTotal)}</span>
+
+            {/* Método de pago */}
+            <div className="bg-white rounded-2xl p-6" style={{ border: '1.5px solid var(--border)' }}>
+              <h2 className="font-black text-base mb-5 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                <CreditCard size={17} style={{ color: 'var(--accent)' }} />
+                Método de pago
+              </h2>
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {PAYMENT_METHODS.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => setPayMethod(m.id)}
+                    className="flex items-start gap-3 p-3.5 rounded-xl text-left transition-all hover:scale-[1.02]"
+                    style={{
+                      border: payMethod === m.id ? '2px solid var(--accent)' : '1.5px solid var(--border)',
+                      background: payMethod === m.id ? 'var(--accent-bg)' : 'white',
+                    }}
+                  >
+                    <span className="text-xl mt-0.5">{m.icon}</span>
+                    <div>
+                      <p className="font-black text-xs" style={{ color: payMethod === m.id ? 'var(--accent)' : 'var(--text-primary)' }}>
+                        {m.label}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{m.desc}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
-              <div className="flex justify-between text-sm text-gray-400">
-                <span>Envío</span><span className="text-green-400">Gratis</span>
-              </div>
-              <div className="flex justify-between font-black text-lg pt-2 border-t border-gray-800">
-                <span>Total</span>
-                <span className="text-green-400">{formatPrice(grandTotal)}</span>
+
+              {/* Info contextual por método */}
+              {payMethod === 'transfer' && (
+                <div className="rounded-xl p-4 text-sm space-y-1" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-light)' }}>
+                  <p className="font-black text-xs mb-2" style={{ color: 'var(--accent)' }}>Datos para transferencia — Tigo Money</p>
+                  <p style={{ color: 'var(--text-secondary)' }}>📱 Número: <strong>+595 984 000 001</strong></p>
+                  <p style={{ color: 'var(--text-secondary)' }}>👤 Nombre: <strong>Tecnovate SRL</strong></p>
+                  <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+                    Enviá el comprobante por WhatsApp para confirmar tu pedido.
+                  </p>
+                </div>
+              )}
+              {payMethod === 'cash' && (
+                <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-light)' }}>
+                  <p className="font-black text-xs mb-1" style={{ color: 'var(--accent)' }}>Coordinamos por WhatsApp</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    Después de confirmar tu pedido nos comunicamos para coordinar la entrega o el retiro en local.
+                  </p>
+                </div>
+              )}
+
+              {/* Botón de pago */}
+              <div className="mt-5">
+                {payMethod === 'bancard' && (
+                  <button
+                    onClick={handleBancard}
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-60"
+                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : '💳'}
+                    {loading ? 'Procesando...' : `Pagar ${formatPrice(grandTotal)} con Bancard`}
+                  </button>
+                )}
+
+                {payMethod === 'paypal' && (
+                  <div className="rounded-xl overflow-hidden">
+                    <PayPalButtons
+                      style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
+                      createOrder={async () => {
+                        const order = await createOrder()
+                        const res = await fetch('/api/payments', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ method: 'paypal', orderId: order.id, amount: grandTotal }),
+                        })
+                        const data = await res.json()
+                        return data.paypalOrderId
+                      }}
+                      onApprove={async (data) => {
+                        await fetch('/api/payments', {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ paypalOrderId: data.orderID }),
+                        })
+                        clearCart()
+                        router.push('/checkout/success?method=paypal')
+                      }}
+                    />
+                  </div>
+                )}
+
+                {payMethod === 'transfer' && (
+                  <button
+                    onClick={handleTransfer}
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-60"
+                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : '📱'}
+                    {loading ? 'Procesando...' : 'Confirmar pedido — Tigo Money'}
+                  </button>
+                )}
+
+                {payMethod === 'cash' && (
+                  <button
+                    onClick={handleCash}
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-60"
+                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}
+                  >
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : '💵'}
+                    {loading ? 'Procesando...' : 'Confirmar pedido — Pagar al recibir'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
+
+          {/* ── Resumen ────────────────────────────────────── */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="bg-white rounded-2xl p-6 sticky top-20" style={{ border: '1.5px solid var(--border)' }}>
+              <h2 className="font-black text-base mb-4" style={{ color: 'var(--text-primary)' }}>Tu pedido</h2>
+
+              <div className="space-y-3 mb-4">
+                {items.map(item => (
+                  <div key={item.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 flex items-center justify-center"
+                      style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+                      {item.image
+                        ? <img src={item.image} alt="" className="w-full h-full object-contain p-1" />
+                        : <span className="text-lg">📦</span>
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                        {item.name}
+                      </p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>× {item.quantity}</p>
+                    </div>
+                    <p className="text-sm font-black shrink-0" style={{ color: 'var(--text-primary)' }}>
+                      {formatPrice(item.price * item.quantity)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: 'var(--text-muted)' }}>Subtotal</span>
+                  <span className="font-bold">{formatPrice(grandTotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span style={{ color: 'var(--text-muted)' }}>Envío</span>
+                  <span className="font-black" style={{ color: '#16a34a' }}>Gratis</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mt-4 pt-4"
+                style={{ borderTop: '2px solid var(--border)' }}>
+                <span className="font-black" style={{ color: 'var(--text-primary)' }}>Total</span>
+                <span className="font-black text-xl" style={{ color: 'var(--accent)' }}>
+                  {formatPrice(grandTotal)}
+                </span>
+              </div>
+
+              <div className="mt-5 space-y-1.5">
+                {['🛡️ Compra 100% segura', '🔄 30 días de devolución', '📦 Garantía oficial'].map(g => (
+                  <p key={g} className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{g}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
