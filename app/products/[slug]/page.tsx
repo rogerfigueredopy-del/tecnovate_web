@@ -7,6 +7,13 @@ import { ProductGrid } from '@/components/ui/ProductGrid'
 import { formatPrice } from '@/lib/utils'
 import { ChevronRight, Star, Package, ShieldCheck, Truck, RotateCcw } from 'lucide-react'
 
+// Cotización dólar — actualizá según el día
+const USD_RATE = 7900
+
+function formatUsd(gs: number) {
+  return 'U$S ' + (gs / USD_RATE).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+}
+
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const product = await getProductBySlug(params.slug)
   if (!product) notFound()
@@ -15,10 +22,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   const avgRating = product.reviews.length
     ? (product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length).toFixed(1)
-    : null
-
-  const discount = product.oldPrice
-    ? Math.round((1 - product.price / product.oldPrice) * 100)
     : null
 
   const GUARANTEES = [
@@ -136,19 +139,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             {/* Price */}
             <div className="py-4 px-5 rounded-2xl" style={{ background: 'white', border: '1.5px solid var(--border)' }}>
-              {product.oldPrice && product.oldPrice > product.price && (
-                <p className="text-sm line-through mb-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {formatPrice(product.oldPrice)}
-                </p>
-              )}
+              {/* Precio en Guaraníes */}
               <p className="text-3xl font-black" style={{ color: 'var(--accent)' }}>
                 {formatPrice(product.price)}
               </p>
-              {discount && (
-                <p className="text-xs font-black mt-1" style={{ color: '#16a34a' }}>
-                  ✓ Ahorrás {formatPrice(product.oldPrice! - product.price)}
-                </p>
-              )}
+              {/* Precio en USD */}
+              <p className="text-lg font-bold mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                {formatUsd(product.price)}
+              </p>
               <p className="text-xs mt-2 font-semibold" style={{ color: product.stock > 0 ? '#16a34a' : '#dc2626' }}>
                 {product.stock > 0
                   ? `✓ En stock — ${product.stock} disponibles`
