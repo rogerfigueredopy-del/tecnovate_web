@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import {
   Laptop, Cpu, Gamepad2, Smartphone, Monitor, Mouse, Wifi, Printer,
-  Truck, CreditCard, RefreshCw, ShieldCheck,
 } from 'lucide-react'
 
 // ── Categorías con íconos Lucide ──────────────────────────────────
@@ -15,14 +14,6 @@ const categories = [
   { name: 'Accesorios',  slug: 'Accesorios',   icon: Mouse,      color: '#b769bd' },
   { name: 'Networking',  slug: 'Networking',   icon: Wifi,       color: '#7b2d9e' },
   { name: 'Impresoras',  slug: 'Impresoras',   icon: Printer,    color: '#9b4fa6' },
-]
-
-// ── Info bar items ────────────────────────────────────────────────
-export const INFO_ITEMS = [
-  { icon: Truck,        title: 'Envío Express',    desc: 'Ciudad del Este mismo día' },
-  { icon: CreditCard,   title: 'Pagos seguros',    desc: 'Bancard · PayPal · Efectivo' },
-  { icon: RefreshCw,    title: 'Devoluciones',     desc: '30 días sin preguntas' },
-  { icon: ShieldCheck,  title: 'Garantía oficial', desc: 'Todos los productos' },
 ]
 
 // ── CategoryGrid ──────────────────────────────────────────────────
