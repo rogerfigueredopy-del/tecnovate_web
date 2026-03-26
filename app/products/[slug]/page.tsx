@@ -6,13 +6,22 @@ import { ProductGrid } from '@/components/ui/ProductGrid'
 import { formatPrice } from '@/lib/utils'
 import { ChevronRight, Star, ShieldCheck, Truck, RotateCcw, Package } from 'lucide-react'
 
-const USD_RATE = 7900
+async function getUsdRate(): Promise<number> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || 'https://tecnovate-new.vercel.app'}/api/exchange-rate`,
+      { next: { revalidate: 3600 } }
+    )
+    const data = await res.json()
+    return data?.rate || 7900
+  } catch { return 7900 }
+}
 
-function formatUsd(gs: any): string {
+function formatUsd(gs: any, rate: number): string {
   try {
     const n = Number(gs)
     if (!n || isNaN(n) || n <= 0) return ''
-    return 'U$S ' + Math.round(n / USD_RATE).toLocaleString('en-US')
+    return 'U$S ' + Math.round(n / rate).toLocaleString('en-US')
   } catch { return '' }
 }
 
@@ -37,9 +46,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   try { related = await getRelatedProducts(product.categoryId, product.id, 6) } catch { related = [] }
 
+  const usdRate  = await getUsdRate()
   const price    = safePrice(product.price)
   const oldPrice = product.oldPrice ? safePrice(product.oldPrice) : null
-  const usdPrice = formatUsd(price)
+  const usdPrice = formatUsd(price, usdRate)
   const avgRating = product.reviews?.length
     ? (product.reviews.reduce((s: number, r: any) => s + r.rating, 0) / product.reviews.length).toFixed(1)
     : null
@@ -139,9 +149,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 {formatPrice(price)}
               </p>
               {usdPrice && (
-                <p className="text-base font-bold mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                  {usdPrice}
-                </p>
+                <div className="mt-1">
+                  <p className="text-base font-bold" style={{ color: 'var(--text-secondary)' }}>
+                    {usdPrice}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    USD 1 = Gs. {usdRate.toLocaleString('es-PY')}
+                  </p>
+                </div>
               )}
               <p className="text-xs mt-2 font-semibold"
                 style={{ color: (product.stock || 0) > 0 ? '#16a34a' : '#dc2626' }}>

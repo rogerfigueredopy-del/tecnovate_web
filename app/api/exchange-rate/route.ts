@@ -1,65 +1,52 @@
 import { NextResponse } from 'next/server'
 
-// Cache 1 hora
-let cache: { rate: number; source: string; timestamp: number } | null = null
-const CACHE_TTL = 60 * 60 * 1000
+// Cache del cambio — se refresca cada 1 hora
+let cachedRate: number | null = null
+let cacheTime = 0
+const CACHE_TTL = 60 * 60 * 1000 // 1 hora
 
-export async function GET() {
-  if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
-    return NextResponse.json({
-      rate: cache.rate,
-      source: cache.source,
-      updatedAt: new Date(cache.timestamp).toISOString(),
-      cached: true,
-    })
-  }
-
-  let rate = 6500
-  let source = 'fallback'
-
-  // Fuente 1: fawazahmed0 - gratuita, confiable, sin API key
+async function fetchRate(): Promise<number> {
   try {
+    // Fuente 1: exchangerate-api (gratuita, sin key)
     const res = await fetch(
-      'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+      'https://open.er-api.com/v6/latest/USD',
       { next: { revalidate: 3600 } }
     )
     const data = await res.json()
-    if (data?.usd?.pyg && data.usd.pyg > 5000) {
-      rate = Math.round(data.usd.pyg)
-      source = 'fawazahmed0 (BCP-based)'
-    }
+    if (data?.rates?.PYG) return Math.round(data.rates.PYG)
   } catch {}
 
-  // Fuente 2: ExchangeRate API (fallback)
-  if (rate === 6500) {
-    try {
-      const res = await fetch('https://open.er-api.com/v6/latest/USD')
-      const data = await res.json()
-      if (data?.rates?.PYG && data.rates.PYG > 5000) {
-        rate = Math.round(data.rates.PYG)
-        source = 'exchangerate-api'
-      }
-    } catch {}
+  try {
+    // Fuente 2: frankfurter (respaldo)
+    const res = await fetch(
+      'https://api.frankfurter.app/latest?from=USD&to=PYG',
+      { next: { revalidate: 3600 } }
+    )
+    const data = await res.json()
+    if (data?.rates?.PYG) return Math.round(data.rates.PYG)
+  } catch {}
+
+  // Fallback si ambas APIs fallan
+  return 7900
+}
+
+export async function GET() {
+  const now = Date.now()
+
+  // Usar cache si es válido
+  if (cachedRate && (now - cacheTime) < CACHE_TTL) {
+    return NextResponse.json(
+      { rate: cachedRate, currency: 'PYG', base: 'USD', cached: true },
+      { headers: { 'Cache-Control': 'public, max-age=3600' } }
+    )
   }
 
-  // Fuente 3: Frankfurter (fallback 2)
-  if (rate === 6500) {
-    try {
-      const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=PYG')
-      const data = await res.json()
-      if (data?.rates?.PYG && data.rates.PYG > 5000) {
-        rate = Math.round(data.rates.PYG)
-        source = 'frankfurter'
-      }
-    } catch {}
-  }
+  const rate = await fetchRate()
+  cachedRate = rate
+  cacheTime  = now
 
-  cache = { rate, source, timestamp: Date.now() }
-
-  return NextResponse.json({
-    rate,
-    source,
-    updatedAt: new Date().toISOString(),
-    cached: false,
-  })
+  return NextResponse.json(
+    { rate, currency: 'PYG', base: 'USD', cached: false },
+    { headers: { 'Cache-Control': 'public, max-age=3600' } }
+  )
 }
