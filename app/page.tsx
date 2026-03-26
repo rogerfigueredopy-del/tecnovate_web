@@ -58,12 +58,15 @@ export default async function HomePage() {
       {/* Category icons */}
       <CategoryGrid />
 
-      {/* Info bar */}
+            {/* Info bar */}
       <div className="bg-white border-y" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 py-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {INFO_ITEMS.map(({ Icon, title, desc }) => (
+          {INFO_ITEMS.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="flex items-center gap-3 py-1">
-              <Icon />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: 'var(--accent-bg)', color: 'var(--accent)' }}>
+                <Icon size={20} strokeWidth={1.5} />
+              </div>
               <div>
                 <p className="text-sm" style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '13px' }}>{title}</p>
                 <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{desc}</p>
@@ -79,7 +82,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 rounded-full" style={{ background: 'var(--accent)' }} />
-              <SectionTitle>🔥 Ofertas Especiales</SectionTitle>
+              <SectionTitle>Ofertas Especiales</SectionTitle>
             </div>
             <Link
               href="/products?sale=true"
@@ -102,7 +105,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 rounded-full" style={{ background: '#9b4fa6' }} />
-              <SectionTitle>🎮 Zona Gaming</SectionTitle>
+              <SectionTitle>Zona Gaming</SectionTitle>
             </div>
             <Link
               href="/products?category=Gaming"
@@ -122,7 +125,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 rounded-full" style={{ background: '#7b2d9e' }} />
-              <SectionTitle>💻 Notebooks 2025</SectionTitle>
+              <SectionTitle>Notebooks 2025</SectionTitle>
             </div>
             <Link
               href="/products?category=Notebooks"
@@ -142,7 +145,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 rounded-full" style={{ background: '#c47fcb' }} />
-              <SectionTitle>📱 Celulares y Smartphones</SectionTitle>
+              <SectionTitle>Celulares y Smartphones</SectionTitle>
             </div>
             <Link
               href="/products?category=Celulares"
@@ -165,7 +168,7 @@ export default async function HomePage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-1 h-6 rounded-full" style={{ background: '#d48fda' }} />
-              <SectionTitle>⭐ Productos Destacados</SectionTitle>
+              <SectionTitle>Productos Destacados</SectionTitle>
             </div>
             <Link
               href="/products"
