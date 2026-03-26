@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Package, PlusCircle, ShoppingCart,
-  Users, CreditCard, Settings, LogOut, BarChart3, Store
+  Users, CreditCard, Settings, LogOut, BarChart3, Store, TrendingUp
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
@@ -15,6 +15,7 @@ const links = [
   { href: '/admin/users',         label: 'Usuarios',        icon: Users },
   { href: '/admin/payments',      label: 'Pagos',           icon: CreditCard },
   { href: '/admin/stats',         label: 'Estadísticas',    icon: BarChart3 },
+  { href: '/admin/pricing',       label: 'Precios',         icon: TrendingUp },
   { href: '/admin/settings',      label: 'Configuración',   icon: Settings },
 ]
 
