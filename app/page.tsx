@@ -1,201 +1,88 @@
 import Link from 'next/link'
-import { HeroSection } from '@/components/ui/HeroSection'
-import { CategoryGrid, GamerBanner, PromosBanner, SectionTitle } from '@/components/ui/CategoryGrid'
-import { InfoBar } from '@/components/ui/InfoBar'
-import { ProductGrid } from '@/components/ui/ProductGrid'
-import { prisma } from '@/lib/prisma'
+import { HeroSection }     from '@/components/ui/HeroSection'
+import { CategoryGrid, GamerBanner, PromosBanner } from '@/components/ui/CategoryGrid'
+import { InfoBar }         from '@/components/ui/InfoBar'
+import { BrandsBar }       from '@/components/ui/BrandsBar'
+import { CategorySection } from '@/components/ui/CategorySection'
+import { prisma }          from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 async function getHomeData() {
   try {
-    const [featured, gaming, celulares, ofertas, notebooks] = await Promise.all([
-      prisma.product.findMany({
-        where: { featured: true, status: 'ACTIVE' },
-        include: { category: { select: { name: true, slug: true } } },
-        take: 8,
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.product.findMany({
-        where: { status: 'ACTIVE', category: { name: 'Gaming' } },
-        include: { category: { select: { name: true, slug: true } } },
-        take: 8,
-        orderBy: { price: 'desc' },
-      }),
-      prisma.product.findMany({
-        where: { status: 'ACTIVE', category: { name: 'Celulares' } },
-        include: { category: { select: { name: true, slug: true } } },
-        take: 8,
-        orderBy: { price: 'desc' },
-      }),
-      prisma.product.findMany({
-        where: { status: 'ACTIVE', oldPrice: { not: null } },
-        include: { category: { select: { name: true, slug: true } } },
-        take: 8,
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.product.findMany({
-        where: { status: 'ACTIVE', category: { name: 'Notebooks' } },
-        include: { category: { select: { name: true, slug: true } } },
-        take: 8,
-        orderBy: { price: 'desc' },
-      }),
+    const [ofertas, celulares, gaming, notebooks, componentes, destacados] = await Promise.all([
+      prisma.product.findMany({ where: { status: 'ACTIVE', oldPrice: { not: null } },             include: { category: { select: { name: true, slug: true } } }, take: 12, orderBy: { createdAt: 'desc' } }),
+      prisma.product.findMany({ where: { status: 'ACTIVE', category: { name: 'Celulares' } },     include: { category: { select: { name: true, slug: true } } }, take: 12, orderBy: { price: 'desc' } }),
+      prisma.product.findMany({ where: { status: 'ACTIVE', category: { name: 'Gaming' } },        include: { category: { select: { name: true, slug: true } } }, take: 12, orderBy: { price: 'desc' } }),
+      prisma.product.findMany({ where: { status: 'ACTIVE', category: { name: 'Notebooks' } },     include: { category: { select: { name: true, slug: true } } }, take: 12, orderBy: { price: 'desc' } }),
+      prisma.product.findMany({ where: { status: 'ACTIVE', category: { name: 'Componentes' } },   include: { category: { select: { name: true, slug: true } } }, take: 12, orderBy: { price: 'desc' } }),
+      prisma.product.findMany({ where: { status: 'ACTIVE', featured: true },                      include: { category: { select: { name: true, slug: true } } }, take: 12, orderBy: { createdAt: 'desc' } }),
     ])
-    return { featured, gaming, celulares, ofertas, notebooks }
+    return { ofertas, celulares, gaming, notebooks, componentes, destacados }
   } catch {
-    return { featured: [], gaming: [], celulares: [], ofertas: [], notebooks: [] }
+    return { ofertas: [], celulares: [], gaming: [], notebooks: [], componentes: [], destacados: [] }
   }
 }
 
 export default async function HomePage() {
-  const { featured, gaming, celulares, ofertas, notebooks } = await getHomeData()
+  const { ofertas, celulares, gaming, notebooks, componentes, destacados } = await getHomeData()
 
   return (
     <div style={{ background: 'var(--bg-secondary)' }}>
 
-      {/* Hero carousel */}
+      {/* Hero 380px fijo */}
       <HeroSection />
 
-      {/* Category icons */}
+      {/* Categorías */}
       <CategoryGrid />
 
-                  {/* Info bar */}
+      {/* Info bar */}
       <InfoBar />
 
       {/* Ofertas */}
-      {ofertas.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-6 rounded-full" style={{ background: 'var(--accent)' }} />
-              <SectionTitle>Ofertas Especiales</SectionTitle>
-            </div>
-            <Link
-              href="/products?sale=true"
-              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
-            >
-              Ver todas →
-            </Link>
-          </div>
-          <ProductGrid products={ofertas} />
-        </section>
-      )}
+      <CategorySection title="Ofertas Especiales"       href="/products?sale=true"             products={ofertas}     color="#dc2626"  bannerKey="Ofertas"     />
 
-      {/* Gamer Banner */}
+      {/* Banner Zona Gamer */}
       <GamerBanner />
 
+      {/* Celulares */}
+      <CategorySection title="Celulares y Smartphones"  href="/products?category=Celulares"    products={celulares}   color="#7b2d9e"  bannerKey="Celulares"   />
+
       {/* Gaming */}
-      {gaming.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-6 rounded-full" style={{ background: '#9b4fa6' }} />
-              <SectionTitle>Zona Gaming</SectionTitle>
-            </div>
-            <Link
-              href="/products?category=Gaming"
-              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
-            >
-              Ver todo →
-            </Link>
-          </div>
-          <ProductGrid products={gaming} />
-        </section>
-      )}
+      <CategorySection title="Zona Gaming"              href="/products?category=Gaming"       products={gaming}      color="#9b4fa6"  bannerKey="Gaming"      />
 
       {/* Notebooks */}
-      {notebooks.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-6 rounded-full" style={{ background: '#7b2d9e' }} />
-              <SectionTitle>Notebooks 2025</SectionTitle>
-            </div>
-            <Link
-              href="/products?category=Notebooks"
-              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
-            >
-              Ver todos →
-            </Link>
-          </div>
-          <ProductGrid products={notebooks} />
-        </section>
-      )}
+      <CategorySection title="Notebooks 2025"           href="/products?category=Notebooks"    products={notebooks}   color="#b769bd"  bannerKey="Notebooks"   />
 
-      {/* Celulares */}
-      {celulares.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-6 rounded-full" style={{ background: '#c47fcb' }} />
-              <SectionTitle>Celulares y Smartphones</SectionTitle>
-            </div>
-            <Link
-              href="/products?category=Celulares"
-              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
-            >
-              Ver todos →
-            </Link>
-          </div>
-          <ProductGrid products={celulares} />
-        </section>
-      )}
+      {/* Marcas */}
+      <BrandsBar />
 
-      {/* Promos banners */}
+      {/* Componentes */}
+      <CategorySection title="Componentes PC"           href="/products?category=Componentes"  products={componentes} color="#7b2d9e"  bannerKey="Componentes" />
+
+      {/* Banners promo */}
       <PromosBanner />
 
       {/* Destacados */}
-      {featured.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-6 rounded-full" style={{ background: '#d48fda' }} />
-              <SectionTitle>Productos Destacados</SectionTitle>
-            </div>
-            <Link
-              href="/products"
-              className="text-sm font-bold px-4 py-1.5 rounded-lg transition-colors"
-              style={{ color: 'var(--accent)', border: '1px solid var(--accent)', background: 'var(--accent-bg)' }}
-            >
-              Ver todos →
-            </Link>
-          </div>
-          <ProductGrid products={featured} />
-        </section>
-      )}
+      <CategorySection title="Productos Destacados"     href="/products"                       products={destacados}  color="#d48fda"  bannerKey="Destacados"  />
 
-      {/* CTA final */}
-      <section
-        className="relative overflow-hidden py-16 my-6 mx-4 rounded-2xl"
-        style={{ background: 'linear-gradient(135deg, #2d0a40 0%, #7b2d9e 50%, #b769bd 100%)' }}
-      >
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }}
-        />
+      {/* CTA */}
+      <section className="relative overflow-hidden py-14 my-5 mx-4 rounded-2xl"
+        style={{ background: 'linear-gradient(135deg, #2d0a40 0%, #7b2d9e 50%, #b769bd 100%)' }}>
+        <div className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="relative max-w-xl mx-auto text-center text-white px-4">
-          <div className="text-5xl mb-4">💜</div>
           <h2 className="text-3xl font-black mb-3">¿Necesitás asesoría?</h2>
           <p className="opacity-80 mb-6 text-sm leading-relaxed">
             Nuestro equipo de Ciudad del Este te ayuda a elegir el equipo ideal para tu presupuesto.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link
-              href="/contact"
-              className="px-7 py-3 rounded-xl font-black text-sm transition-all hover:scale-105"
-              style={{ background: 'white', color: '#7b2d9e' }}
-            >
+            <Link href="/contact" className="px-7 py-3 rounded-xl font-black text-sm transition-all hover:scale-105"
+              style={{ background: 'white', color: '#7b2d9e' }}>
               Contactanos
             </Link>
-            <Link
-              href="/products"
-              className="px-7 py-3 rounded-xl font-black text-sm border-2 transition-all hover:bg-white/10"
-              style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}
-            >
+            <Link href="/products" className="px-7 py-3 rounded-xl font-black text-sm border-2 transition-all hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.4)', color: 'white' }}>
               Ver productos
             </Link>
           </div>
