@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { HeroSection } from '@/components/ui/HeroSection'
-import { CategoryGrid, GamerBanner, PromosBanner, SectionTitle } from '@/components/ui/CategoryGrid'
+import { CategoryGrid, GamerBanner, PromosBanner, SectionTitle, INFO_ITEMS } from '@/components/ui/CategoryGrid'
 import { ProductGrid } from '@/components/ui/ProductGrid'
 import { prisma } from '@/lib/prisma'
 
@@ -61,17 +61,12 @@ export default async function HomePage() {
       {/* Info bar */}
       <div className="bg-white border-y" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 py-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { icon: '🚚', title: 'Envío Express',      desc: 'Ciudad del Este mismo día' },
-            { icon: '💳', title: 'Pagos seguros',       desc: 'Bancard · PayPal · Efectivo' },
-            { icon: '🔄', title: 'Devoluciones',        desc: '30 días sin preguntas' },
-            { icon: '🛡️', title: 'Garantía oficial',   desc: 'Todos los productos' },
-          ].map(item => (
-            <div key={item.title} className="flex items-center gap-3 py-1">
-              <span className="text-2xl">{item.icon}</span>
+          {INFO_ITEMS.map(({ Icon, title, desc }) => (
+            <div key={title} className="flex items-center gap-3 py-1">
+              <Icon />
               <div>
-                <p className="text-sm" style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '13px' }}>{item.title}</p>
-                <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{item.desc}</p>
+                <p className="text-sm" style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '13px' }}>{title}</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{desc}</p>
               </div>
             </div>
           ))}
