@@ -84,6 +84,7 @@ model Product {
   brand          String
   sku            String?  @unique
   price          Float
+  priceBase      Float?   
   oldPrice       Float?
   stock          Int      @default(0)
   images         String[] // Cloudinary URLs
