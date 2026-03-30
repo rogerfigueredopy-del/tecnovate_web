@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { formatPrice } from '@/lib/utils'
-import { Tag, Percent, Package, Layers, CheckSquare, Loader2, TrendingUp, Search, RotateCcw, BarChart3 } from 'lucide-react'
+import { Tag, Percent, Package, Layers, CheckSquare, Loader2, TrendingUp, Search, RotateCcw, BarChart3, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const CATEGORIES = ['Notebooks','Componentes','Gaming','Celulares','Monitores','Accesorios','Networking','Impresoras']
@@ -18,7 +18,6 @@ export default function PricingPage() {
   const [loadingProds, setLoadingProds] = useState(false)
   const [stats,        setStats]        = useState<any>(null)
 
-  // Cargar stats actuales
   const loadStats = useCallback(async () => {
     try {
       const res  = await fetch('/api/admin/pricing')
@@ -29,7 +28,6 @@ export default function PricingPage() {
 
   useEffect(() => { loadStats() }, [loadStats])
 
-  // Cargar productos para selección
   useEffect(() => {
     if (scope !== 'products') return
     setLoadingProds(true)
@@ -77,7 +75,7 @@ export default function PricingPage() {
     }
   }
 
-  const handleReset = async () => {
+  const handleResetDiscounts = async () => {
     if (!confirm('¿Eliminar todos los precios tachados (descuentos visibles)?')) return
     setLoading(true)
     try {
@@ -96,6 +94,35 @@ export default function PricingPage() {
       setLoading(false)
     }
   }
+
+  const handleResetToBase = async () => {
+    const scopeTxt = scope === 'all' ? 'TODOS los productos' : scope === 'category' ? `categoría ${categoryName}` : `${selected.length} productos`
+    if (!confirm(`¿Volver al precio base (sin margen) para ${scopeTxt}?\nEsto eliminará el margen aplicado y los descuentos.`)) return
+    setLoading(true)
+    try {
+      const res  = await fetch('/api/admin/pricing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scope,
+          categoryName: scope === 'category' ? categoryName : undefined,
+          productIds:   scope === 'products'  ? selected      : undefined,
+          resetToBase: true,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`✓ ${data.message}`)
+      setSelected([])
+      loadStats()
+    } catch (e: any) {
+      toast.error(e.message || 'Error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const marginColor = stats?.avgMargin > 0 ? 'var(--accent)' : stats?.avgMargin < 0 ? '#dc2626' : 'var(--text-secondary)'
 
   return (
     <div style={{ background: 'var(--bg-secondary)', minHeight: '100vh' }}>
@@ -132,6 +159,25 @@ export default function PricingPage() {
                   <p className="font-black text-sm" style={{ color: 'var(--accent)' }}>{s.value}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Margen actual aplicado */}
+            <div className="mt-4 rounded-xl p-4" style={{ background: stats.avgMargin !== 0 ? '#fef9c3' : 'var(--bg-secondary)', border: `1.5px solid ${stats.avgMargin !== 0 ? '#fde047' : 'var(--border)'}` }}>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  {stats.avgMargin !== 0 && <AlertTriangle size={15} style={{ color: '#ca8a04' }} />}
+                  <p className="text-xs font-black" style={{ color: 'var(--text-secondary)' }}>
+                    Margen promedio aplicado actualmente
+                  </p>
+                </div>
+                <p className="text-xl font-black" style={{ color: marginColor }}>
+                  {stats.avgMargin > 0 ? '+' : ''}{stats.avgMargin}%
+                </p>
+              </div>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Calculado sobre {stats.productsWithBase?.toLocaleString()} productos con precio base registrado.
+                {stats.avgMargin !== 0 && ' Podés modificarlo o volver al precio base con los botones de abajo.'}
+              </p>
             </div>
           </div>
         )}
@@ -253,10 +299,12 @@ export default function PricingPage() {
               </label>
               <input type="number" min="0" max="500" step="1"
                 value={marginPct} onChange={e => setMarginPct(e.target.value)}
-                placeholder="Ej: 20 (= +20%)"
+                placeholder={stats?.avgMargin != null ? `Actual: ${stats.avgMargin}%` : 'Ej: 20 (= +20%)'}
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none"
                 style={{ border: '1.5px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
-              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>0 = sin cambio en precio base</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Siempre calculado desde el precio base
+              </p>
             </div>
             <div>
               <label className="block text-xs font-black mb-1.5" style={{ color: 'var(--text-secondary)' }}>
@@ -309,18 +357,25 @@ export default function PricingPage() {
           )}
 
           {/* Botones */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <button onClick={handleApply} disabled={loading}
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:opacity-90 disabled:opacity-60"
-              style={{ background: 'var(--accent)' }}>
+              style={{ background: 'var(--accent)', minWidth: 160 }}>
               {loading ? <><Loader2 size={16} className="animate-spin" /> Aplicando...</> : <><Percent size={16} />Aplicar a {scopeLabel}</>}
             </button>
-            <button onClick={handleReset} disabled={loading}
+            <button onClick={handleResetToBase} disabled={loading}
+              className="flex items-center gap-2 px-5 py-3.5 rounded-xl font-black text-sm transition-all hover:opacity-90 disabled:opacity-60"
+              style={{ border: '1.5px solid #dc2626', background: '#fef2f2', color: '#dc2626' }}
+              title="Volver al precio base (sin margen ni descuento)">
+              <RotateCcw size={16} />
+              Volver al precio base
+            </button>
+            <button onClick={handleResetDiscounts} disabled={loading}
               className="flex items-center gap-2 px-5 py-3.5 rounded-xl font-black text-sm transition-all hover:opacity-90 disabled:opacity-60"
               style={{ border: '1.5px solid var(--border)', background: 'white', color: 'var(--text-secondary)' }}
-              title="Eliminar todos los descuentos visibles (precios tachados)">
-              <RotateCcw size={16} />
-              Reset descuentos
+              title="Eliminar solo los precios tachados (descuentos visibles)">
+              <RotateCcw size={14} />
+              Solo descuentos
             </button>
           </div>
         </div>
