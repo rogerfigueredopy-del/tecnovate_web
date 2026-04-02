@@ -186,7 +186,7 @@ export default function ImportarPage() {
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, margin: '0 0 4px' }}>Importar productos</h1>
         <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>
-          Descargá el Excel desde Atacado Connect → "Descargar lista" y subilo acá
+          Descargá el Excel desde Tecnovate → "Descargar lista" y subilo acá
         </p>
       </div>
 
@@ -270,7 +270,7 @@ export default function ImportarPage() {
         >
           <div style={{ fontSize: 48, marginBottom: 12 }}>📂</div>
           <p style={{ fontSize: 16, fontWeight: 500, margin: '0 0 4px' }}>
-            Subí el Excel de Atacado Connect
+            Subí el Excel de Tecnovate
           </p>
           <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>
             Arrastrá el archivo acá o hacé clic para seleccionarlo

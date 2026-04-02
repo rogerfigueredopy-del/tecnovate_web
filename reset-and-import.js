@@ -30,7 +30,7 @@ function slugify(text) {
 
 async function main() {
   console.log('╔═══════════════════════════════════════════════════╗')
-  console.log('║  TECNOVATE — Importador Atacado Connect           ║')
+  console.log('║  TECNOVATE — Importador Tecnovate                 ║')
   console.log('╚═══════════════════════════════════════════════════╝\n')
 
   // ── Verificar archivo fuente ───────────────────────────────────

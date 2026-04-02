@@ -120,7 +120,7 @@ async function main() {
   }
   
   const products = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'))
-  console.log(`\n🚀 Importando ${products.length} productos de Atacado Connect...`)
+  console.log(`\n🚀 Importando ${products.length} productos...`)
 
   const exchangeRate = await getExchangeRate()
   console.log(`💹 Margen: +${(MARKUP-1)*100}% | Tipo de cambio: G$ ${exchangeRate.toLocaleString()}\n`)

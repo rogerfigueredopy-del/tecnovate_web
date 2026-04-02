@@ -250,7 +250,7 @@ export default function PricingPage() {
                 className="w-full rounded-xl px-3 py-2.5 text-sm outline-none font-black"
                 style={{ border: '1.5px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                Ingresá el mismo valor que muestra Atacado Connect
+                Ingresá el cambio que desees
               </p>
             </div>
             <button onClick={handleSaveRate} disabled={loadingRate}
