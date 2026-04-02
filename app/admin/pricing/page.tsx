@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { formatPrice } from '@/lib/utils'
-import { Tag, Percent, Package, Layers, CheckSquare, Loader2, TrendingUp, Search, RotateCcw, BarChart3, AlertTriangle } from 'lucide-react'
+import { Tag, Percent, Package, Layers, CheckSquare, Loader2, TrendingUp, Search, RotateCcw, BarChart3, AlertTriangle, DollarSign, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const CATEGORIES = ['Notebooks','Componentes','Gaming','Celulares','Monitores','Accesorios','Networking','Impresoras']
@@ -17,6 +17,52 @@ export default function PricingPage() {
   const [selected,     setSelected]     = useState<string[]>([])
   const [loadingProds, setLoadingProds] = useState(false)
   const [stats,        setStats]        = useState<any>(null)
+  const [exchangeRate, setExchangeRate] = useState<any>(null)
+  const [rateInput,    setRateInput]    = useState('')
+  const [loadingRate,  setLoadingRate]  = useState(false)
+
+  const loadExchangeRate = useCallback(async () => {
+    try {
+      const res  = await fetch('/api/exchange-rate')
+      const data = await res.json()
+      setExchangeRate(data)
+      setRateInput(String(data.rate))
+    } catch {}
+  }, [])
+
+  useEffect(() => { loadExchangeRate() }, [loadExchangeRate])
+
+  const handleSaveRate = async () => {
+    setLoadingRate(true)
+    try {
+      const res  = await fetch('/api/exchange-rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rate: parseFloat(rateInput) }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`✓ ${data.message}`)
+      loadExchangeRate()
+    } catch (e: any) { toast.error(e.message) }
+    finally { setLoadingRate(false) }
+  }
+
+  const handleAutoRate = async () => {
+    setLoadingRate(true)
+    try {
+      const res  = await fetch('/api/exchange-rate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rate: null }), // elimina manual → auto
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success(`✓ ${data.message}`)
+      loadExchangeRate()
+    } catch (e: any) { toast.error(e.message) }
+    finally { setLoadingRate(false) }
+  }
 
   const loadStats = useCallback(async () => {
     try {
@@ -181,6 +227,47 @@ export default function PricingPage() {
             </div>
           </div>
         )}
+
+        {/* Tipo de cambio */}
+        <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>
+          <div className="flex items-center gap-2 mb-4">
+            <DollarSign size={16} style={{ color: 'var(--accent)' }} />
+            <h3 className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>Tipo de cambio USD / Gs.</h3>
+            {exchangeRate && (
+              <span className="ml-auto text-xs px-2 py-0.5 rounded-full font-black"
+                style={{ background: exchangeRate.source === 'manual' ? '#fef9c3' : 'var(--accent-bg)', color: exchangeRate.source === 'manual' ? '#92400e' : 'var(--accent)' }}>
+                {exchangeRate.source === 'manual' ? 'Manual' : 'Auto'}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-3 items-end flex-wrap">
+            <div className="flex-1" style={{ minWidth: 180 }}>
+              <label className="block text-xs font-black mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                1 USD = ? Gs. (guaraníes)
+              </label>
+              <input type="number" min="1000" max="20000" step="10"
+                value={rateInput} onChange={e => setRateInput(e.target.value)}
+                className="w-full rounded-xl px-3 py-2.5 text-sm outline-none font-black"
+                style={{ border: '1.5px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Ingresá el mismo valor que muestra Atacado Connect
+              </p>
+            </div>
+            <button onClick={handleSaveRate} disabled={loadingRate}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-white text-sm transition-all hover:opacity-90 disabled:opacity-60"
+              style={{ background: 'var(--accent)' }}>
+              {loadingRate ? <Loader2 size={14} className="animate-spin" /> : <DollarSign size={14} />}
+              Guardar
+            </button>
+            <button onClick={handleAutoRate} disabled={loadingRate}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-sm transition-all hover:opacity-90 disabled:opacity-60"
+              style={{ border: '1.5px solid var(--border)', background: 'white', color: 'var(--text-secondary)' }}
+              title="Volver a tasa automática de mercado">
+              <RefreshCw size={14} />
+              Auto
+            </button>
+          </div>
+        </div>
 
         {/* Cómo funciona */}
         <div className="bg-white rounded-2xl p-5" style={{ border: '1px solid var(--border)' }}>

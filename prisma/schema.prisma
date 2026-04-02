@@ -231,3 +231,11 @@ enum PCBuilderSlot {
   CASE
   COOLING
 }
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
