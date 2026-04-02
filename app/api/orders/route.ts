@@ -7,11 +7,9 @@ import { z } from 'zod'
 const orderSchema = z.object({
   items: z.array(z.object({
     id: z.string(),
-    price: z.number(),
-    quantity: z.number(),
-    name: z.string(),
+    quantity: z.number().int().positive(),
+    // price lo ignoramos — se re-consulta desde la DB
   })),
-  total: z.number(),
   address: z.object({
     street: z.string(),
     city: z.string(),
@@ -28,28 +26,43 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { items, total, address } = orderSchema.parse(body)
+    const { items, address } = orderSchema.parse(body)
     const userId = (session.user as any).id
+
+    // Re-consultar precios desde la DB (congela el precio en Gs al momento de compra)
+    const productIds = items.map(i => i.id)
+    const dbProducts = await prisma.product.findMany({
+      where: { id: { in: productIds }, status: 'ACTIVE' },
+      select: { id: true, price: true },
+    })
+
+    if (dbProducts.length !== productIds.length) {
+      return NextResponse.json({ error: 'Uno o más productos no están disponibles' }, { status: 400 })
+    }
+
+    const priceMap = Object.fromEntries(dbProducts.map(p => [p.id, p.price]))
+
+    const orderItems = items.map(i => ({
+      productId: i.id,
+      quantity:  i.quantity,
+      price:     priceMap[i.id], // precio en Gs congelado desde la DB
+    }))
+
+    const total = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
 
     // Crear dirección
     const addr = await prisma.address.create({
       data: { userId, ...address, isDefault: false },
     })
 
-    // Crear pedido con items
+    // Crear pedido con items y precios congelados
     const order = await prisma.order.create({
       data: {
         userId,
         total,
         addressId: addr.id,
         status: 'PENDING',
-        items: {
-          create: items.map(i => ({
-            productId: i.id,
-            quantity: i.quantity,
-            price: i.price,
-          })),
-        },
+        items: { create: orderItems },
       },
       include: { items: true },
     })

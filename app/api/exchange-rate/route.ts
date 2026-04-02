@@ -10,18 +10,20 @@ let cachedRate: number | null = null
 let cacheTime = 0
 const CACHE_TTL = 60 * 60 * 1000
 
+const RATE_BUFFER = 300 // Gs extra sobre la tasa de mercado
+
 async function fetchRateFromApi(): Promise<number> {
   try {
     const res = await fetch('https://open.er-api.com/v6/latest/USD', { next: { revalidate: 3600 } })
     const data = await res.json()
-    if (data?.rates?.PYG) return Math.round(data.rates.PYG)
+    if (data?.rates?.PYG) return Math.round(data.rates.PYG) + RATE_BUFFER
   } catch {}
   try {
     const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=PYG', { next: { revalidate: 3600 } })
     const data = await res.json()
-    if (data?.rates?.PYG) return Math.round(data.rates.PYG)
+    if (data?.rates?.PYG) return Math.round(data.rates.PYG) + RATE_BUFFER
   } catch {}
-  return 7900
+  return 7900 + RATE_BUFFER
 }
 
 export async function GET() {
