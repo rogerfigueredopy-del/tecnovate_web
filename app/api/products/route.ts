@@ -36,7 +36,12 @@ export async function GET(req: NextRequest) {
   const where: any = { status: 'ACTIVE' }
 
   if (category) {
-    where.category = { slug: category }
+    where.category = {
+      OR: [
+        { slug: category.toLowerCase() },
+        { name: { equals: category, mode: 'insensitive' } },
+      ]
+    }
   }
   if (search) {
     where.OR = [
