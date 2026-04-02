@@ -71,20 +71,31 @@ export async function POST(req: NextRequest) {
 
     // ── Reset al precio base ──────────────────────────────────────
     if (resetToBase) {
-      const productos = await prisma.product.findMany({
-        where: { ...where, priceBase: { not: null, gt: 0 } },
-        select: { id: true, priceBase: true },
-      })
-      if (!productos.length) {
-        return NextResponse.json({ error: 'No hay productos con precio base' }, { status: 404 })
-      }
-      let updated = 0
-      for (const p of productos) {
-        await prisma.product.update({
-          where: { id: p.id },
-          data: { price: p.priceBase!, oldPrice: null },
-        })
-        updated++
+      let updated: number
+      if (scope === 'products' && productIds?.length) {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price = "priceBase", "oldPrice" = NULL
+          WHERE id = ANY(${productIds}::text[])
+            AND "priceBase" IS NOT NULL AND "priceBase" > 0
+        `
+      } else if (scope === 'category' && categoryName) {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price = "priceBase", "oldPrice" = NULL
+          FROM categories
+          WHERE products."categoryId" = categories.id
+            AND categories.name = ${categoryName}
+            AND products."priceBase" IS NOT NULL AND products."priceBase" > 0
+            AND products.status = 'ACTIVE'
+        `
+      } else {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price = "priceBase", "oldPrice" = NULL
+          WHERE "priceBase" IS NOT NULL AND "priceBase" > 0
+            AND status = 'ACTIVE'
+        `
       }
       return NextResponse.json({ ok: true, updated, message: `${updated} productos volvieron al precio base` })
     }
@@ -103,34 +114,69 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Descuento inválido (0-90%)' }, { status: 400 })
     }
 
-    // ── Obtener productos ─────────────────────────────────────────
-    const productos = await prisma.product.findMany({
-      where,
-      select: { id: true, price: true, priceBase: true },
-    })
-
-    if (!productos.length) {
-      return NextResponse.json({ error: 'No se encontraron productos' }, { status: 404 })
-    }
-
-    // ── Aplicar precios siempre desde priceBase ───────────────────
-    let updated = 0
+    // ── Aplicar precios siempre desde priceBase (SQL raw, una sola query) ───
     const margin   = parseFloat(marginPct)  || 0
     const discount = parseFloat(discountPct) || 0
+    const multiplier    = 1 + margin / 100
+    // oldPrice = withMargin / (1 - discount/100), solo si discount > 0
+    const discountDivisor = discount > 0 ? 1 - discount / 100 : null
 
-    for (const prod of productos) {
-      try {
-        // Usar priceBase como punto de partida; si no existe, usar price actual
-        const base        = Number(prod.priceBase ?? prod.price)
-        const withMargin  = margin > 0 ? Math.round(base * (1 + margin / 100)) : base
-        const newOldPrice = discount > 0 ? Math.round(withMargin / (1 - discount / 100)) : null
+    let updated: number
+    if (scope === 'products' && productIds?.length) {
+      if (discountDivisor !== null) {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price    = ROUND(COALESCE("priceBase", price) * ${multiplier}),
+              "oldPrice" = ROUND(ROUND(COALESCE("priceBase", price) * ${multiplier}) / ${discountDivisor})
+          WHERE id = ANY(${productIds}::text[])
+        `
+      } else {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price = ROUND(COALESCE("priceBase", price) * ${multiplier}), "oldPrice" = NULL
+          WHERE id = ANY(${productIds}::text[])
+        `
+      }
+    } else if (scope === 'category' && categoryName) {
+      if (discountDivisor !== null) {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price    = ROUND(COALESCE(products."priceBase", products.price) * ${multiplier}),
+              "oldPrice" = ROUND(ROUND(COALESCE(products."priceBase", products.price) * ${multiplier}) / ${discountDivisor})
+          FROM categories
+          WHERE products."categoryId" = categories.id
+            AND categories.name = ${categoryName}
+            AND products.status = 'ACTIVE'
+        `
+      } else {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price = ROUND(COALESCE(products."priceBase", products.price) * ${multiplier}), "oldPrice" = NULL
+          FROM categories
+          WHERE products."categoryId" = categories.id
+            AND categories.name = ${categoryName}
+            AND products.status = 'ACTIVE'
+        `
+      }
+    } else {
+      if (discountDivisor !== null) {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price    = ROUND(COALESCE("priceBase", price) * ${multiplier}),
+              "oldPrice" = ROUND(ROUND(COALESCE("priceBase", price) * ${multiplier}) / ${discountDivisor})
+          WHERE status = 'ACTIVE'
+        `
+      } else {
+        updated = await prisma.$executeRaw`
+          UPDATE products
+          SET price = ROUND(COALESCE("priceBase", price) * ${multiplier}), "oldPrice" = NULL
+          WHERE status = 'ACTIVE'
+        `
+      }
+    }
 
-        await prisma.product.update({
-          where: { id: prod.id },
-          data:  { price: withMargin, oldPrice: newOldPrice },
-        })
-        updated++
-      } catch {}
+    if (!updated) {
+      return NextResponse.json({ error: 'No se encontraron productos' }, { status: 404 })
     }
 
     return NextResponse.json({ ok: true, updated, message: `${updated} productos actualizados` })
