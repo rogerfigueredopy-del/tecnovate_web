@@ -11,37 +11,41 @@ import { ExchangeRateBadge } from '@/components/ui/ExchangeRateBadge'
 const MENU = [
   {
     label: 'Informática',
-    href: '/products?category=Componentes',
+    href: '/products?category=Notebooks',
     cols: [
       {
         title: 'Notebooks y PCs',
         items: [
-          { label: 'Notebooks de Trabajo', href: '/products?category=Notebooks' },
-          { label: 'Notebooks Gaming', href: '/products?category=Gaming&q=notebook' },
-          { label: 'MacBooks', href: '/products?q=macbook' },
-          { label: 'Desktops y Mini PCs', href: '/products?q=desktop' },
+          { label: 'Todos los Notebooks',   href: '/products?category=Notebooks' },
+          { label: 'Notebooks Gaming',       href: '/products?category=Notebooks&q=gaming' },
+          { label: 'Notebooks de Trabajo',   href: '/products?category=Notebooks&q=trabajo' },
+          { label: 'MacBooks',               href: '/products?category=Notebooks&q=macbook' },
+          { label: 'Mini PC / Desktop',      href: '/products?category=Componentes&q=mini pc' },
         ]
       },
       {
         title: 'Componentes PC',
         items: [
-          { label: 'Procesadores (CPU)', href: '/products?category=Componentes&q=procesador' },
-          { label: 'Placas Madre', href: '/products?category=Componentes&q=placa madre' },
-          { label: 'Tarjetas Gráficas', href: '/products?category=Componentes&q=tarjeta gr' },
-          { label: 'Memorias RAM', href: '/products?category=Componentes&q=memoria ram' },
-          { label: 'SSD y Almacenamiento', href: '/products?category=Componentes&q=ssd' },
-          { label: 'Fuentes de Poder', href: '/products?category=Componentes&q=fuente' },
-          { label: 'Gabinetes', href: '/products?category=Componentes&q=gabinete' },
-          { label: 'Coolers', href: '/products?category=Componentes&q=cooler' },
+          { label: 'Procesadores (CPU)',      href: '/products?category=Componentes&q=procesador' },
+          { label: 'Placas Madre',            href: '/products?category=Componentes&q=placa madre' },
+          { label: 'Tarjetas Gráficas',       href: '/products?category=Componentes&q=tarjeta grafica' },
+          { label: 'Memorias RAM',            href: '/products?category=Componentes&q=memoria ram' },
+          { label: 'SSD / Almacenamiento',    href: '/products?category=Componentes&q=ssd' },
+          { label: 'Fuentes de Poder',        href: '/products?category=Componentes&q=fuente' },
+          { label: 'Gabinetes',               href: '/products?category=Componentes&q=gabinete' },
+          { label: 'Coolers / Watercooling',  href: '/products?category=Componentes&q=cooler' },
         ]
       },
       {
         title: 'Monitores y Periféricos',
         items: [
-          { label: 'Monitores', href: '/products?category=Monitores' },
-          { label: 'Teclados y Mouses', href: '/products?category=Gaming&q=teclado' },
-          { label: 'Auriculares Gaming', href: '/products?category=Gaming&q=auricular' },
-          { label: 'Sillas Gaming', href: '/products?category=Gaming&q=silla' },
+          { label: 'Todos los Monitores',     href: '/products?category=Monitores' },
+          { label: 'Monitores 4K',            href: '/products?category=Monitores&q=4k' },
+          { label: 'Monitores Gaming',        href: '/products?category=Monitores&q=gaming' },
+          { label: 'Teclados y Mouses',       href: '/products?category=Gaming&q=teclado' },
+          { label: 'Auriculares',             href: '/products?category=Gaming&q=auricular' },
+          { label: 'Networking / Routers',    href: '/products?category=Networking' },
+          { label: 'Impresoras',              href: '/products?category=Impresoras&q=impresora' },
         ]
       },
     ]
@@ -53,19 +57,29 @@ const MENU = [
       {
         title: 'PC Gamer',
         items: [
-          { label: '⚡ Armá tu PC', href: '/gamer', highlight: true },
-          { label: 'Notebooks Gaming', href: '/products?category=Gaming&q=notebook' },
-          { label: 'Tarjetas Gráficas', href: '/products?category=Componentes&q=rtx' },
-          { label: 'Monitores Gaming', href: '/products?category=Monitores&q=gamer' },
+          { label: '⚡ Armá tu PC',          href: '/gamer', highlight: true },
+          { label: 'Tarjetas Gráficas RTX',  href: '/products?category=Componentes&q=rtx' },
+          { label: 'Monitores Gaming',        href: '/products?category=Monitores&q=gaming' },
+          { label: 'Gabinetes Gamer',         href: '/products?category=Gaming&q=gabinete' },
+          { label: 'Sillas Gamer',            href: '/products?category=Gaming&q=silla' },
+        ]
+      },
+      {
+        title: 'Consolas y Juegos',
+        items: [
+          { label: 'Consolas',                href: '/products?category=Gaming&q=consola' },
+          { label: 'Juegos Nintendo Switch',  href: '/products?category=Gaming&q=juego' },
+          { label: 'Controles',               href: '/products?category=Gaming&q=control' },
+          { label: 'Accesorios PS / Xbox',    href: '/products?category=Gaming&q=funda' },
         ]
       },
       {
         title: 'Accesorios Gaming',
         items: [
-          { label: 'Teclados Mecánicos', href: '/products?q=teclado mecanico' },
-          { label: 'Mouse Gaming', href: '/products?q=mouse gaming' },
-          { label: 'Headsets', href: '/products?q=headset' },
-          { label: 'Sillas Gamer', href: '/products?q=silla gamer' },
+          { label: 'Teclados Mecánicos',      href: '/products?category=Gaming&q=teclado' },
+          { label: 'Mouses Gaming',           href: '/products?category=Gaming&q=ratón' },
+          { label: 'Headsets',                href: '/products?category=Gaming&q=headset' },
+          { label: 'Mousepad',                href: '/products?category=Gaming&q=mousepad' },
         ]
       },
     ]
@@ -77,33 +91,88 @@ const MENU = [
       {
         title: 'Smartphones',
         items: [
-          { label: 'iPhones', href: '/products?q=iphone' },
-          { label: 'Samsung Galaxy', href: '/products?q=samsung galaxy' },
-          { label: 'Xiaomi', href: '/products?q=xiaomi celular' },
-          { label: 'Motorola', href: '/products?q=motorola' },
+          { label: 'Todos los Celulares',     href: '/products?category=Celulares' },
+          { label: 'iPhones',                 href: '/products?category=Celulares&q=iphone' },
+          { label: 'Samsung Galaxy',          href: '/products?category=Celulares&q=samsung' },
+          { label: 'Xiaomi',                  href: '/products?category=Celulares&q=xiaomi' },
+          { label: 'Motorola',                href: '/products?category=Celulares&q=motorola' },
         ]
       },
       {
-        title: 'Wearables',
+        title: 'Tablets y Wearables',
         items: [
-          { label: 'Smartwatches', href: '/products?q=smartwatch' },
-          { label: 'Apple Watch', href: '/products?q=apple watch' },
-          { label: 'Auriculares TWS', href: '/products?q=tws' },
+          { label: 'Tablets',                 href: '/products?category=Celulares&q=tablet' },
+          { label: 'Smartwatches',            href: '/products?category=Celulares&q=smartwatch' },
+          { label: 'Apple Watch / Garmin',    href: '/products?category=Accesorios&q=garmin' },
+          { label: 'Auriculares TWS',         href: '/products?category=Celulares&q=auricular' },
+          { label: 'Cargadores',              href: '/products?category=Celulares&q=cargador' },
         ]
       },
     ]
   },
   {
-    label: 'Monitores',
-    href: '/products?category=Monitores',
+    label: 'Accesorios',
+    href: '/products?category=Accesorios',
+    cols: [
+      {
+        title: 'Perfumes y Belleza',
+        items: [
+          { label: 'Perfumes',                href: '/products?category=Accesorios&q=perfume' },
+          { label: 'Lattafa',                 href: '/products?category=Accesorios&q=lattafa' },
+          { label: 'Maison',                  href: '/products?category=Accesorios&q=maison' },
+          { label: 'Armaf',                   href: '/products?category=Accesorios&q=armaf' },
+          { label: "Victoria's Secret",       href: '/products?category=Accesorios&q=victoria' },
+        ]
+      },
+      {
+        title: 'Almacenamiento',
+        items: [
+          { label: 'Memorias / Pendrive',     href: '/products?category=Accesorios&q=memoria' },
+          { label: 'SSD Externo',             href: '/products?category=Accesorios&q=ssd' },
+          { label: 'Discos Duros',            href: '/products?category=Accesorios&q=hd' },
+        ]
+      },
+      {
+        title: 'Otros Accesorios',
+        items: [
+          { label: 'Auriculares',             href: '/products?category=Accesorios&q=auricular' },
+          { label: 'Smartwatches / Garmin',   href: '/products?category=Accesorios&q=garmin' },
+          { label: 'Cámaras / Drones',        href: '/products?category=Accesorios&q=cámara' },
+          { label: 'Impresoras 3D',           href: '/products?category=Impresoras&q=filamento' },
+          { label: 'Ver todo',                href: '/products?category=Accesorios' },
+        ]
+      },
+    ]
+  },
+  {
+    label: 'Más',
+    href: '/products',
     cols: [
       {
         title: 'Monitores',
         items: [
-          { label: 'Monitores 4K', href: '/products?category=Monitores&q=4k' },
-          { label: 'Monitores Gaming', href: '/products?category=Monitores&q=gamer' },
-          { label: 'Monitores OLED', href: '/products?category=Monitores&q=oled' },
-          { label: 'Todos los Monitores', href: '/products?category=Monitores' },
+          { label: 'Todos los Monitores',     href: '/products?category=Monitores' },
+          { label: 'Monitores 4K',            href: '/products?category=Monitores&q=4k' },
+          { label: 'Monitores Gaming',        href: '/products?category=Monitores&q=gaming' },
+          { label: 'Monitores OLED / Curvo',  href: '/products?category=Monitores&q=oled' },
+        ]
+      },
+      {
+        title: 'Networking',
+        items: [
+          { label: 'Routers',                 href: '/products?category=Networking&q=router' },
+          { label: 'Cámaras IP',              href: '/products?category=Networking&q=cámara' },
+          { label: 'Smart Home',              href: '/products?category=Networking&q=smart' },
+          { label: 'Tablets / Hub',           href: '/products?category=Networking&q=tablet' },
+        ]
+      },
+      {
+        title: 'Impresoras',
+        items: [
+          { label: 'Impresoras Inkjet / Láser', href: '/products?category=Impresoras&q=impresora' },
+          { label: 'Filamentos 3D',           href: '/products?category=Impresoras&q=filamento' },
+          { label: 'Resinas 3D',              href: '/products?category=Impresoras&q=resina' },
+          { label: 'Cartuchos y Tóner',       href: '/products?category=Impresoras&q=cartucho' },
         ]
       },
     ]

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { HeroSection }     from '@/components/ui/HeroSection'
-import { CategoryGrid, GamerBanner, PromosBanner } from '@/components/ui/CategoryGrid'
+import { GamerBanner, PromosBanner } from '@/components/ui/CategoryGrid'
 import { InfoBar }         from '@/components/ui/InfoBar'
 import { BrandsBar }       from '@/components/ui/BrandsBar'
 import { CategorySection } from '@/components/ui/CategorySection'
@@ -32,9 +32,6 @@ export default async function HomePage() {
 
       {/* Hero 380px fijo */}
       <HeroSection />
-
-      {/* Categorías */}
-      <CategoryGrid />
 
       {/* Info bar */}
       <InfoBar />
