@@ -26,12 +26,17 @@ const productSchema = z.object({
 // GET /api/products — Lista con filtros
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const category = searchParams.get('category')
-  const search = searchParams.get('q')
-  const pcSlot = searchParams.get('pcSlot')
-  const featured = searchParams.get('featured')
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '12')
+  const category  = searchParams.get('category')
+  const search    = searchParams.get('q')
+  const brand     = searchParams.get('brand')
+  const minPrice  = searchParams.get('minPrice')
+  const maxPrice  = searchParams.get('maxPrice')
+  const sortParam = searchParams.get('sort') || 'newest'
+  const pcSlot    = searchParams.get('pcSlot')
+  const featured  = searchParams.get('featured')
+  const saleOnly  = searchParams.get('sale') === 'true'
+  const page  = parseInt(searchParams.get('page')  || '1')
+  const limit = parseInt(searchParams.get('limit') || '24')
 
   const where: any = { status: 'ACTIVE' }
 
@@ -45,25 +50,32 @@ export async function GET(req: NextRequest) {
   }
   if (search) {
     where.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { brand: { contains: search, mode: 'insensitive' } },
+      { name:        { contains: search, mode: 'insensitive' } },
+      { brand:       { contains: search, mode: 'insensitive' } },
       { description: { contains: search, mode: 'insensitive' } },
     ]
   }
-  if (pcSlot) {
-    where.pcBuilderSlot = pcSlot
-  }
-  if (featured === 'true') {
-    where.featured = true
-  }
+  if (brand)    where.brand    = { equals: brand, mode: 'insensitive' }
+  if (minPrice) where.price    = { ...where.price, gte: parseFloat(minPrice) }
+  if (maxPrice) where.price    = { ...where.price, lte: parseFloat(maxPrice) }
+  if (pcSlot)   where.pcBuilderSlot = pcSlot
+  if (featured === 'true') where.featured = true
+  if (saleOnly) where.oldPrice = { not: null }
+
+  const orderBy: any =
+    sortParam === 'price_asc'  ? { price: 'asc' }  :
+    sortParam === 'price_desc' ? { price: 'desc' } :
+    sortParam === 'name_asc'   ? { name:  'asc' }  :
+    sortParam === 'name_desc'  ? { name:  'desc' } :
+    { createdAt: 'desc' }
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({
       where,
       include: { category: { select: { name: true, slug: true } } },
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
+      skip:  (page - 1) * limit,
+      take:  limit,
+      orderBy,
     }),
     prisma.product.count({ where }),
   ])
