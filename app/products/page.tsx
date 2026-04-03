@@ -2,20 +2,21 @@
 import { ProductCard } from '@/components/ui/ProductCard'
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { X, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { X, ChevronDown, SlidersHorizontal, Laptop, Cpu, Gamepad2, Smartphone, Monitor, Headphones, Wifi, Printer } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
-const CATEGORY_CONFIG: Record<string, { emoji: string; title: string; subtitle: string; bg: string; accent: string }> = {
-  Notebooks:    { emoji: '💻', title: 'Notebooks',              subtitle: 'Las mejores laptops del mercado — gaming, trabajo y estudio',    bg: 'linear-gradient(135deg,#2d0a40,#7b2d9e)', accent: '#b769bd' },
-  Componentes:  { emoji: '⚙️', title: 'Componentes PC',         subtitle: 'CPUs, GPUs, RAM, almacenamiento y más para armar tu PC',         bg: 'linear-gradient(135deg,#1a0030,#5c1a70)', accent: '#d48fda' },
-  Gaming:       { emoji: '🎮', title: 'Zona Gaming',             subtitle: 'Equipos y accesorios para llevar tu gaming al siguiente nivel',  bg: 'linear-gradient(135deg,#200838,#6b2177)', accent: '#c47fcb' },
-  Celulares:    { emoji: '📱', title: 'Celulares y Smartphones', subtitle: 'iPhone, Samsung, Xiaomi y más — todos los modelos disponibles',  bg: 'linear-gradient(135deg,#1a0030,#4a0a5c)', accent: '#b769bd' },
-  Monitores:    { emoji: '🖥️', title: 'Monitores',              subtitle: 'Monitores gaming, profesionales y de oficina — 4K, IPS, OLED',   bg: 'linear-gradient(135deg,#2d0a40,#7b2d9e)', accent: '#d48fda' },
-  Accesorios:   { emoji: '🖱️', title: 'Accesorios',             subtitle: 'Teclados, mouses, auriculares, perfumes y mucho más',            bg: 'linear-gradient(135deg,#1a0030,#5c1a70)', accent: '#c47fcb' },
-  Networking:   { emoji: '📡', title: 'Networking',              subtitle: 'Routers, cámaras, smart home y todo para tu red',                bg: 'linear-gradient(135deg,#200838,#5c1a70)', accent: '#b769bd' },
-  Impresoras:   { emoji: '🖨️', title: 'Impresoras y 3D',        subtitle: 'Impresoras, filamentos 3D, resinas y suministros',               bg: 'linear-gradient(135deg,#2d0a40,#7b2d9e)', accent: '#d48fda' },
+const CATEGORY_CONFIG: Record<string, { icon: LucideIcon; title: string; subtitle: string; bg: string; accent: string }> = {
+  Notebooks:    { icon: Laptop,     title: 'Notebooks',              subtitle: 'Las mejores laptops del mercado — gaming, trabajo y estudio',    bg: 'linear-gradient(135deg,#2d0a40,#7b2d9e)', accent: '#b769bd' },
+  Componentes:  { icon: Cpu,        title: 'Componentes PC',         subtitle: 'CPUs, GPUs, RAM, almacenamiento y más para armar tu PC',         bg: 'linear-gradient(135deg,#1a0030,#5c1a70)', accent: '#d48fda' },
+  Gaming:       { icon: Gamepad2,   title: 'Zona Gaming',            subtitle: 'Equipos y accesorios para llevar tu gaming al siguiente nivel',   bg: 'linear-gradient(135deg,#200838,#6b2177)', accent: '#c47fcb' },
+  Celulares:    { icon: Smartphone, title: 'Celulares y Smartphones',subtitle: 'iPhone, Samsung, Xiaomi y más — todos los modelos disponibles',   bg: 'linear-gradient(135deg,#1a0030,#4a0a5c)', accent: '#b769bd' },
+  Monitores:    { icon: Monitor,    title: 'Monitores',              subtitle: 'Monitores gaming, profesionales y de oficina — 4K, IPS, OLED',    bg: 'linear-gradient(135deg,#2d0a40,#7b2d9e)', accent: '#d48fda' },
+  Accesorios:   { icon: Headphones, title: 'Accesorios',             subtitle: 'Teclados, mouses, auriculares, perfumes y mucho más',             bg: 'linear-gradient(135deg,#1a0030,#5c1a70)', accent: '#c47fcb' },
+  Networking:   { icon: Wifi,       title: 'Networking',             subtitle: 'Routers, cámaras, smart home y todo para tu red',                 bg: 'linear-gradient(135deg,#200838,#5c1a70)', accent: '#b769bd' },
+  Impresoras:   { icon: Printer,    title: 'Impresoras y 3D',        subtitle: 'Impresoras, filamentos 3D, resinas y suministros',                bg: 'linear-gradient(135deg,#2d0a40,#7b2d9e)', accent: '#d48fda' },
 }
 
 const SUBCATEGORIES: Record<string, { label: string; q: string }[]> = {
@@ -149,12 +150,12 @@ function ProductsPageInner() {
       {catConfig ? (
         <div className="relative overflow-hidden" style={{ background: catConfig.bg, minHeight: '140px' }}>
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
-          <div className="absolute right-0 top-0 bottom-0 flex items-center select-none pointer-events-none" style={{ fontSize: '180px', opacity: 0.08, paddingRight: '32px' }}>
-            {catConfig.emoji}
+          <div className="absolute right-0 top-0 bottom-0 flex items-center select-none pointer-events-none" style={{ opacity: 0.06, paddingRight: '20px' }}>
+            <catConfig.icon size={200} strokeWidth={0.8} color="white" />
           </div>
           <div className="relative max-w-7xl mx-auto px-6 py-10 flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shrink-0" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-              {catConfig.emoji}
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
+              <catConfig.icon size={26} strokeWidth={1.5} color={catConfig.accent} />
             </div>
             <div>
               <p className="text-xs font-black uppercase tracking-widest mb-1" style={{ color: catConfig.accent }}>Categoría</p>

@@ -1,27 +1,23 @@
 'use client'
 import Link from 'next/link'
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { ShoppingCart, ChevronRight, ChevronLeft, Smartphone, Gamepad2, Laptop, Cpu, Monitor, Headphones, Wifi, Printer, Tag, Star, Sparkles } from 'lucide-react'
+import { ShoppingCart, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
-import type { LucideIcon } from 'lucide-react'
 
-const CATEGORY_BANNERS: Record<string, {
-  bg: string; accent: string; title: string; sub: string; badge?: string;
-  icon: LucideIcon; shape: string
-}> = {
-  Celulares:   { bg: 'linear-gradient(160deg,#0d0525,#2a0a5e,#5b1fa0)', accent: '#c084fc', title: 'iPhone 17\nPro Max',       sub: 'Chip A19 Pro · Titanio · 5G',        icon: Smartphone, shape: 'linear-gradient(135deg,rgba(192,132,252,0.25),rgba(139,92,246,0.1))' },
-  Gaming:      { bg: 'linear-gradient(160deg,#060118,#1a0050,#4c0d8f)', accent: '#a78bfa', title: 'Zona\nGaming',             sub: 'Notebooks · GPUs · Accesorios',       icon: Gamepad2,   shape: 'linear-gradient(135deg,rgba(167,139,250,0.22),rgba(109,40,217,0.08))' },
-  Notebooks:   { bg: 'linear-gradient(160deg,#150030,#3b1075,#7c3aed)', accent: '#d8b4fe', title: 'MacBook\nPro M4',          sub: 'Intel Ultra · AMD Ryzen AI',          icon: Laptop,     shape: 'linear-gradient(135deg,rgba(216,180,254,0.2),rgba(124,58,237,0.08))' },
-  Componentes: { bg: 'linear-gradient(160deg,#0a0120,#200a55,#4c1d95)', accent: '#c4b5fd', title: 'Armá\ntu PC',              sub: 'CPU · GPU · RAM · SSD',               icon: Cpu,        shape: 'linear-gradient(135deg,rgba(196,181,253,0.22),rgba(76,29,149,0.1))' },
-  Monitores:   { bg: 'linear-gradient(160deg,#071020,#0f2060,#1e3a8a)', accent: '#93c5fd', title: 'Monitores\nOLED',          sub: '144Hz · IPS · Curvo',                 icon: Monitor,    shape: 'linear-gradient(135deg,rgba(147,197,253,0.2),rgba(30,58,138,0.08))' },
-  Accesorios:  { bg: 'linear-gradient(160deg,#0d0525,#2a0a5e,#5b1fa0)', accent: '#e879f9', title: 'Meta Quest\n3S & 3',       sub: 'Realidad Virtual · Lentes VR',        icon: Headphones, shape: 'linear-gradient(135deg,rgba(232,121,249,0.22),rgba(168,85,247,0.08))' },
-  Networking:  { bg: 'linear-gradient(160deg,#011a0a,#023d1a,#065f46)', accent: '#6ee7b7', title: 'Networking\n& Smart Home', sub: 'Routers · Cámaras · Tablets',         icon: Wifi,       shape: 'linear-gradient(135deg,rgba(110,231,183,0.2),rgba(6,95,70,0.08))' },
-  Impresoras:  { bg: 'linear-gradient(160deg,#1a0800,#3d1a00,#92400e)', accent: '#fcd34d', title: 'Impresoras\n& Filamentos', sub: 'Creality · HP · Epson',               icon: Printer,    shape: 'linear-gradient(135deg,rgba(252,211,77,0.2),rgba(146,64,14,0.1))' },
-  Ofertas:     { bg: 'linear-gradient(160deg,#1f0015,#4c0030,#9d174d)', accent: '#f9a8d4', title: 'Ofertas\nEspeciales',      sub: 'Precios increíbles · Stock limitado', icon: Tag,        shape: 'linear-gradient(135deg,rgba(249,168,212,0.22),rgba(157,23,77,0.08))' },
-  Destacados:  { bg: 'linear-gradient(160deg,#08082a,#181060,#312e81)', accent: '#a5b4fc', title: 'Productos\nDestacados',    sub: 'Lo mejor de nuestra tienda',          icon: Star,       shape: 'linear-gradient(135deg,rgba(165,180,252,0.2),rgba(49,46,129,0.08))' },
-  Perfumes:    { bg: 'linear-gradient(160deg,#1a0010,#4a0828,#831843)', accent: '#f0abfc', title: 'Perfumes\ny Fragancias',   sub: 'Lattafa · Maison · Armaf',            icon: Sparkles,   shape: 'linear-gradient(135deg,rgba(240,171,252,0.22),rgba(131,24,67,0.08))' },
+const CATEGORY_BANNERS: Record<string, { bg: string; title: string; sub: string; badge: string; img?: string }> = {
+  Celulares:   { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#3d1060)', badge: 'NUEVO',  title: 'iPhone 17\nPro Max',        sub: 'Chip A19 Pro · Titanio · 5G',         img: '/banners/cat-celulares.png' },
+  Gaming:      { bg: 'linear-gradient(135deg,#0a0020,#1a0040,#4a0a70)', badge: 'RTX 50', title: 'Zona\nGaming',              sub: 'Notebooks · GPUs · Accesorios',        img: '/banners/cat-gaming.png' },
+  Notebooks:   { bg: 'linear-gradient(135deg,#1a0030,#3d1060,#7b2d9e)', badge: '2025',   title: 'MacBook\nPro M4',           sub: 'Intel Ultra · AMD Ryzen AI',           img: '/banners/cat-notebooks.png' },
+  Componentes: { bg: 'linear-gradient(135deg,#0d0020,#2d0060,#5b1a9e)', badge: 'STOCK',  title: 'Armá\ntu PC',               sub: 'CPU · GPU · RAM · SSD',               img: '/banners/cat-componentes.png' },
+  Monitores:   { bg: 'linear-gradient(135deg,#0a1020,#1a2040,#2d4080)', badge: '4K',     title: 'Monitores\nOLED',           sub: '144Hz · IPS · Curvo' },
+  Accesorios:  { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#2d1060)', badge: 'VR',     title: 'Meta Quest\n3S & 3',        sub: 'Realidad Virtual · Lentes VR',         img: '/banners/cat-accesorios.png' },
+  Networking:  { bg: 'linear-gradient(135deg,#001a0a,#003d20,#0a7b50)', badge: 'WIFI 6', title: 'Networking\n& Smart Home',  sub: 'Routers · Cámaras · Tablets',          img: '/banners/cat-networking.png' },
+  Impresoras:  { bg: 'linear-gradient(135deg,#1a0a00,#3d2000,#7b4a00)', badge: '3D',     title: 'Impresoras\n& Filamentos',  sub: 'Creality · HP · Epson',               img: '/banners/cat-impresoras.png' },
+  Ofertas:     { bg: 'linear-gradient(135deg,#200010,#4a0020,#9b1a50)', badge: '-30%',   title: 'Ofertas\nEspeciales',       sub: 'Precios increíbles · Stock limitado' },
+  Destacados:  { bg: 'linear-gradient(135deg,#0a0a20,#1a1040,#3d2080)', badge: '★',      title: 'Productos\nDestacados',     sub: 'Lo mejor de nuestra tienda' },
+  Perfumes:    { bg: 'linear-gradient(135deg,#1a000a,#3d0a20,#7b1a50)', badge: 'SALE',   title: 'Perfumes\ny Fragancias',    sub: 'Lattafa · Maison · Armaf',             img: '/banners/cat-perfumes.png' },
 }
 
 function MiniCard({ product }: { product: any }) {
@@ -104,6 +100,7 @@ export function CategorySection({ title, href, products, color = 'var(--accent)'
           <h2 className="text-base font-black" style={{ color: 'var(--text-primary)' }}>{title}</h2>
         </div>
         <div className="flex items-center gap-2">
+          {/* Flechas */}
           <button onClick={() => scroll('left')} disabled={!canLeft}
             className="w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20 hover:scale-110"
             style={{ border: `1.5px solid ${color}`, color, background: `${color}12` }}>
@@ -124,54 +121,26 @@ export function CategorySection({ title, href, products, color = 'var(--accent)'
 
       {/* Carrusel */}
       <div className="flex gap-3 overflow-hidden relative">
-        {banner && (() => {
-          const Icon = banner.icon
-          return (
-            <Link href={href}
-              className="shrink-0 w-44 rounded-2xl overflow-hidden relative flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-2xl"
-              style={{ background: banner.bg, minHeight: '320px' }}>
-
-              {/* Fondo de puntos */}
-              <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '16px 16px' }} />
-
-              {/* Formas geométricas decorativas */}
-              <div className="absolute top-0 left-0 right-0" style={{ height: '180px', background: banner.shape }} />
-              <div className="absolute rounded-full" style={{ width: '160px', height: '160px', top: '-40px', right: '-40px', background: `${banner.accent}18`, border: `1px solid ${banner.accent}30` }} />
-              <div className="absolute rounded-full" style={{ width: '80px', height: '80px', top: '30px', left: '-20px', background: `${banner.accent}10`, border: `1px solid ${banner.accent}20` }} />
-              {/* Línea diagonal decorativa */}
-              <div className="absolute" style={{ width: '2px', height: '90px', top: '40px', left: '50%', background: `linear-gradient(to bottom, ${banner.accent}60, transparent)`, transform: 'rotate(20deg)', borderRadius: '2px' }} />
-
-              {/* Ícono central */}
-              <div className="relative z-10 flex flex-col items-center justify-center pt-10 pb-4">
-                <div className="rounded-2xl flex items-center justify-center mb-3"
-                  style={{ width: '64px', height: '64px', background: `${banner.accent}22`, border: `1.5px solid ${banner.accent}50`, boxShadow: `0 0 24px ${banner.accent}30` }}>
-                  <Icon size={30} color={banner.accent} strokeWidth={1.5} />
-                </div>
-                {/* Puntos decorativos */}
-                <div className="flex gap-1.5 mt-1">
-                  {[0,1,2].map(i => (
-                    <div key={i} className="rounded-full" style={{ width: '5px', height: '5px', background: i === 1 ? banner.accent : `${banner.accent}40` }} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Texto inferior */}
-              <div className="relative z-10 p-4">
-                {/* Línea separadora */}
-                <div className="mb-3" style={{ height: '1px', background: `linear-gradient(to right, ${banner.accent}60, transparent)` }} />
-                <span className="inline-block text-xs font-black px-2 py-0.5 rounded-md mb-2"
-                  style={{ background: `${banner.accent}25`, color: banner.accent, border: `1px solid ${banner.accent}40`, fontSize: '10px', letterSpacing: '0.05em' }}>
-                  {banner.badge}
-                </span>
-                <p className="text-base font-black text-white leading-tight mb-1.5" style={{ whiteSpace: 'pre-line' }}>{banner.title}</p>
-                <p className="text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.55)', fontSize: '10px' }}>{banner.sub}</p>
-                <div className="mt-3 flex items-center gap-1 text-xs font-black" style={{ color: banner.accent }}>
-                  Ver todo <ChevronRight size={11} />
-                </div>
-              </div>
-            </Link>
-          )
-        })()}
+        {banner && (
+          <Link href={href}
+            className="shrink-0 w-44 rounded-2xl overflow-hidden relative flex flex-col justify-end p-4 transition-all hover:scale-[1.02]"
+            style={{ background: banner.bg, minHeight: '320px' }}>
+            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px)', backgroundSize: '18px 18px' }} />
+            {banner.img && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={banner.img} alt={banner.title} className="absolute inset-0 w-full h-full object-cover object-center" style={{ opacity: 0.55 }} />
+            )}
+            <div className="absolute top-0 right-0 w-full h-1/2" style={{ background: 'radial-gradient(ellipse at top right,rgba(183,105,189,0.35),transparent 70%)' }} />
+            <div className="relative z-10">
+              <span className="inline-block text-xs font-black px-2 py-0.5 rounded-lg mb-3" style={{ background: 'rgba(255,255,255,0.18)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}>
+                {banner.badge}
+              </span>
+              <p className="text-lg font-black text-white leading-tight mb-1" style={{ whiteSpace: 'pre-line' }}>{banner.title}</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>{banner.sub}</p>
+              <div className="mt-3 text-xs font-black text-white opacity-60">Ver →</div>
+            </div>
+          </Link>
+        )}
 
         <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {products.map(p => <MiniCard key={p.id} product={p} />)}
