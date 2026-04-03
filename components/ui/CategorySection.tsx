@@ -128,7 +128,7 @@ export function CategorySection({ title, href, products, color = 'var(--accent)'
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px)', backgroundSize: '18px 18px' }} />
             {banner.img && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={banner.img} alt={banner.title} className="absolute inset-0 w-full h-full object-cover object-center" style={{ opacity: 0.35 }} />
+              <img src={banner.img} alt={banner.title} className="absolute inset-0 w-full h-full object-cover object-center" style={{ opacity: 0.55 }} />
             )}
             <div className="absolute top-0 right-0 w-full h-1/2" style={{ background: 'radial-gradient(ellipse at top right,rgba(183,105,189,0.35),transparent 70%)' }} />
             <div className="relative z-10">

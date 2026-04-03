@@ -59,7 +59,7 @@ export default async function HomePage() {
       {/* Sección masonry estilo outlet */}
       <MasonrySection products={masonryProducts} />
 
-      <CategorySection title="Perfumes y Fragancias"     href="/products?q=perfume"              products={perfumes}     color="#c2185b"  bannerKey="Accesorios"   />
+      <CategorySection title="Perfumes y Fragancias"     href="/products?q=perfume"              products={perfumes}     color="#c2185b"  bannerKey="Perfumes"     />
       <CategorySection title="Accesorios"                href="/products?category=Accesorios"    products={accesorios}   color="#9b4fa6"  bannerKey="Accesorios"   />
       <CategorySection title="Networking y Smart Home"   href="/products?category=Networking"    products={networking}   color="#0a7b50"  bannerKey="Networking"   />
       <CategorySection title="Impresoras y 3D"           href="/products?category=Impresoras"    products={impresoras}   color="#bf6c00"  bannerKey="Impresoras"   />
