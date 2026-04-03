@@ -6,17 +6,18 @@ import { useCartStore } from '@/lib/store/cart'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
-const CATEGORY_BANNERS: Record<string, { bg: string; title: string; sub: string; badge: string }> = {
-  Celulares:   { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#3d1060)', badge: 'NUEVO',  title: 'iPhone 17\nPro Max',        sub: 'Chip A19 Pro · Titanio · 5G' },
-  Gaming:      { bg: 'linear-gradient(135deg,#0a0020,#1a0040,#4a0a70)', badge: 'RTX 50', title: 'Zona\nGaming',              sub: 'Notebooks · GPUs · Accesorios' },
-  Notebooks:   { bg: 'linear-gradient(135deg,#1a0030,#3d1060,#7b2d9e)', badge: '2025',   title: 'MacBook\nPro M4',           sub: 'Intel Ultra · AMD Ryzen AI' },
-  Componentes: { bg: 'linear-gradient(135deg,#0d0020,#2d0060,#5b1a9e)', badge: 'STOCK',  title: 'Armá\ntu PC',               sub: 'CPU · GPU · RAM · SSD' },
+const CATEGORY_BANNERS: Record<string, { bg: string; title: string; sub: string; badge: string; img?: string }> = {
+  Celulares:   { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#3d1060)', badge: 'NUEVO',  title: 'iPhone 17\nPro Max',        sub: 'Chip A19 Pro · Titanio · 5G',         img: '/banners/cat-celulares.png' },
+  Gaming:      { bg: 'linear-gradient(135deg,#0a0020,#1a0040,#4a0a70)', badge: 'RTX 50', title: 'Zona\nGaming',              sub: 'Notebooks · GPUs · Accesorios',        img: '/banners/cat-gaming.png' },
+  Notebooks:   { bg: 'linear-gradient(135deg,#1a0030,#3d1060,#7b2d9e)', badge: '2025',   title: 'MacBook\nPro M4',           sub: 'Intel Ultra · AMD Ryzen AI',           img: '/banners/cat-notebooks.png' },
+  Componentes: { bg: 'linear-gradient(135deg,#0d0020,#2d0060,#5b1a9e)', badge: 'STOCK',  title: 'Armá\ntu PC',               sub: 'CPU · GPU · RAM · SSD',               img: '/banners/cat-componentes.png' },
   Monitores:   { bg: 'linear-gradient(135deg,#0a1020,#1a2040,#2d4080)', badge: '4K',     title: 'Monitores\nOLED',           sub: '144Hz · IPS · Curvo' },
-  Accesorios:  { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#2d1060)', badge: 'VR',     title: 'Meta Quest\n3S & 3',        sub: 'Realidad Virtual · Lentes VR' },
-  Networking:  { bg: 'linear-gradient(135deg,#001a0a,#003d20,#0a7b50)', badge: 'WIFI 6', title: 'Networking\n& Smart Home',  sub: 'Routers · Cámaras · Tablets' },
-  Impresoras:  { bg: 'linear-gradient(135deg,#1a0a00,#3d2000,#7b4a00)', badge: '3D',     title: 'Impresoras\n& Filamentos',  sub: 'Creality · HP · Epson' },
+  Accesorios:  { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#2d1060)', badge: 'VR',     title: 'Meta Quest\n3S & 3',        sub: 'Realidad Virtual · Lentes VR',         img: '/banners/cat-accesorios.png' },
+  Networking:  { bg: 'linear-gradient(135deg,#001a0a,#003d20,#0a7b50)', badge: 'WIFI 6', title: 'Networking\n& Smart Home',  sub: 'Routers · Cámaras · Tablets',          img: '/banners/cat-networking.png' },
+  Impresoras:  { bg: 'linear-gradient(135deg,#1a0a00,#3d2000,#7b4a00)', badge: '3D',     title: 'Impresoras\n& Filamentos',  sub: 'Creality · HP · Epson',               img: '/banners/cat-impresoras.png' },
   Ofertas:     { bg: 'linear-gradient(135deg,#200010,#4a0020,#9b1a50)', badge: '-30%',   title: 'Ofertas\nEspeciales',       sub: 'Precios increíbles · Stock limitado' },
   Destacados:  { bg: 'linear-gradient(135deg,#0a0a20,#1a1040,#3d2080)', badge: '★',      title: 'Productos\nDestacados',     sub: 'Lo mejor de nuestra tienda' },
+  Perfumes:    { bg: 'linear-gradient(135deg,#1a000a,#3d0a20,#7b1a50)', badge: 'SALE',   title: 'Perfumes\ny Fragancias',    sub: 'Lattafa · Maison · Armaf',             img: '/banners/cat-perfumes.png' },
 }
 
 function MiniCard({ product }: { product: any }) {
@@ -125,6 +126,10 @@ export function CategorySection({ title, href, products, color = 'var(--accent)'
             className="shrink-0 w-44 rounded-2xl overflow-hidden relative flex flex-col justify-end p-4 transition-all hover:scale-[1.02]"
             style={{ background: banner.bg, minHeight: '320px' }}>
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px)', backgroundSize: '18px 18px' }} />
+            {banner.img && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={banner.img} alt={banner.title} className="absolute inset-0 w-full h-full object-cover object-center" style={{ opacity: 0.35 }} />
+            )}
             <div className="absolute top-0 right-0 w-full h-1/2" style={{ background: 'radial-gradient(ellipse at top right,rgba(183,105,189,0.35),transparent 70%)' }} />
             <div className="relative z-10">
               <span className="inline-block text-xs font-black px-2 py-0.5 rounded-lg mb-3" style={{ background: 'rgba(255,255,255,0.18)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}>

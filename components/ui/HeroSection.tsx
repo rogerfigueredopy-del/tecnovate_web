@@ -4,11 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const SLIDES = [
-  { img: '/banners/banner-soundpeats.png',   href: '/products?q=soundpeats',                  alt: 'SoundPeats' },
-  { img: '/banners/banner-drone.png',        href: '/products?q=drone',                       alt: 'Drone 360' },
-  { img: '/banners/banner-rtx5070.png',      href: '/products?category=Componentes&q=rtx',    alt: 'RTX 5070' },
-  { img: '/banners/banner-anahickmann.png',  href: '/products?q=ana+hickmann',                alt: 'Ana Hickmann' },
-  { img: '/banners/banner-macbook.png',      href: '/products?category=Notebooks&q=macbook',  alt: 'MacBook' },
+  { img: '/banners/banner-1.png', href: '/products', alt: 'Tecnovate' },
+  { img: '/banners/banner-2.png', href: '/products', alt: 'Tecnovate' },
+  { img: '/banners/banner-3.png', href: '/products', alt: 'Tecnovate' },
+  { img: '/banners/banner-4.png', href: '/products', alt: 'Tecnovate' },
 ]
 
 export function HeroSection() {

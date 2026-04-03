@@ -60,8 +60,11 @@ export function GamerBanner() {
         style={{ background: 'linear-gradient(135deg, #1a0030 0%, #3d1060 50%, #7b2d9e 100%)' }}>
         <div className="absolute inset-0"
           style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className="absolute top-0 right-0 w-64 h-full pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at right,rgba(183,105,189,0.3) 0%,transparent 70%)' }} />
+        {/* Imagen de fondo */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/banners/banner-gamer.png" alt="Armá tu PC"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ opacity: 0.35 }} />
         <div className="relative px-8 py-6 flex items-center gap-6">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
             style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
