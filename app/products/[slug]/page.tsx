@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getProductBySlug, getRelatedProducts } from '@/lib/products'
 import { ProductPageClient } from '@/components/ui/ProductPageClient'
+import { ProductGallery }   from '@/components/ui/ProductGallery'
 import { ProductGrid } from '@/components/ui/ProductGrid'
 import { formatPrice } from '@/lib/utils'
 import { ChevronRight, Star, ShieldCheck, Truck, RotateCcw, Package } from 'lucide-react'
@@ -79,27 +80,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
           {/* Galería */}
           <div className="space-y-3">
-            <div className="relative rounded-2xl overflow-hidden flex items-center justify-center bg-white"
-              style={{ aspectRatio: '1', border: '1.5px solid var(--border)', padding: '24px' }}>
-              {product.images?.[0] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.images[0]} alt={product.name}
-                  className="w-full h-full object-contain" style={{ maxHeight: '380px' }} />
-              ) : (
-                <div className="text-8xl opacity-20">📦</div>
-              )}
-            </div>
-            {product.images?.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {product.images.slice(0, 8).map((img: string, i: number) => (
-                  <div key={i} className="w-16 h-16 shrink-0 rounded-xl overflow-hidden flex items-center justify-center bg-white"
-                    style={{ border: i === 0 ? '2px solid var(--accent)' : '1.5px solid var(--border)', padding: '4px' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt="" className="w-full h-full object-contain" />
-                  </div>
-                ))}
-              </div>
-            )}
+            <ProductGallery images={product.images || []} name={product.name} />
           </div>
 
           {/* Info */}
