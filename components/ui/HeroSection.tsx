@@ -27,8 +27,8 @@ export function HeroSection() {
   }, [])
 
   return (
-    /* ── altura fija 380px — nunca se estira más ── */
-    <section className="relative overflow-hidden w-full bg-black" style={{ height: '380px' }}>
+    /* ── 1280×380 centrado ── */
+    <section className="relative overflow-hidden bg-black mx-auto" style={{ height: '380px', maxWidth: '1280px', width: '100%' }}>
 
       {SLIDES.map((slide, i) => (
         <Link
