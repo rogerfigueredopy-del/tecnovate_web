@@ -12,7 +12,7 @@ const CATEGORY_BANNERS: Record<string, { bg: string; title: string; sub: string;
   Notebooks:   { bg: 'linear-gradient(135deg,#1a0030,#3d1060,#7b2d9e)', badge: '2025',   title: 'MacBook\nPro M4',           sub: 'Intel Ultra · AMD Ryzen AI' },
   Componentes: { bg: 'linear-gradient(135deg,#0d0020,#2d0060,#5b1a9e)', badge: 'STOCK',  title: 'Armá\ntu PC',               sub: 'CPU · GPU · RAM · SSD' },
   Monitores:   { bg: 'linear-gradient(135deg,#0a1020,#1a2040,#2d4080)', badge: '4K',     title: 'Monitores\nOLED',           sub: '144Hz · IPS · Curvo' },
-  Accesorios:  { bg: 'linear-gradient(135deg,#1a000a,#3d0a20,#7b1a50)', badge: 'SALE',   title: 'Perfumes\ny Accesorios',    sub: 'Lattafa · Maison · Apple' },
+  Accesorios:  { bg: 'linear-gradient(135deg,#0a0a1a,#1a0a30,#2d1060)', badge: 'VR',     title: 'Meta Quest\n3S & 3',        sub: 'Realidad Virtual · Lentes VR' },
   Networking:  { bg: 'linear-gradient(135deg,#001a0a,#003d20,#0a7b50)', badge: 'WIFI 6', title: 'Networking\n& Smart Home',  sub: 'Routers · Cámaras · Tablets' },
   Impresoras:  { bg: 'linear-gradient(135deg,#1a0a00,#3d2000,#7b4a00)', badge: '3D',     title: 'Impresoras\n& Filamentos',  sub: 'Creality · HP · Epson' },
   Ofertas:     { bg: 'linear-gradient(135deg,#200010,#4a0020,#9b1a50)', badge: '-30%',   title: 'Ofertas\nEspeciales',       sub: 'Precios increíbles · Stock limitado' },
