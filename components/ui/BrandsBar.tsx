@@ -37,17 +37,24 @@ export function BrandsBar() {
     <section className="max-w-7xl mx-auto px-4 py-4">
       <style>{`
         @keyframes brandScroll {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0%   { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
         .brand-track {
           display: flex;
           gap: 12px;
           animation: brandScroll 30s linear infinite;
           width: max-content;
+          will-change: transform;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
         .brand-track:hover {
           animation-play-state: paused;
+        }
+        .brand-track img {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
         }
       `}</style>
 
