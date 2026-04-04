@@ -50,7 +50,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const usdRate  = await getUsdRate()
   const price    = safePrice(product.price)
   const oldPrice = product.oldPrice ? safePrice(product.oldPrice) : null
-  const usdPrice = formatUsd(price, usdRate)
+  // Usar priceUSD del proveedor si existe; si no, calcular por tasa
+  const supplierUsd = product.specs?.priceUSD ? Number(product.specs.priceUSD) : null
+  const usdPrice = supplierUsd
+    ? 'U$S ' + supplierUsd.toLocaleString('en-US')
+    : formatUsd(price, usdRate)
   const avgRating = product.reviews?.length
     ? (product.reviews.reduce((s: number, r: any) => s + r.rating, 0) / product.reviews.length).toFixed(1)
     : null
