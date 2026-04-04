@@ -272,7 +272,7 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="shrink-0 flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Tecnovate" style={{ height: 44, width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Tecnovate" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
             </Link>
 
             {/* Search */}
@@ -434,8 +434,7 @@ export function Navbar() {
                 className="ml-auto flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black text-white relative overflow-hidden"
                 style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 0 16px rgba(249,115,22,0.5)', letterSpacing: '0.02em' }}
               >
-                <span style={{ fontSize: 16 }}>⚡</span>
-                Armá tu PC
+                🖥️ Armá tu PC
                 <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(120deg,rgba(255,255,255,0.15) 0%,transparent 60%)' }} />
               </Link>
             </div>
