@@ -12,15 +12,15 @@ export const dynamic = 'force-dynamic'
 async function getHomeData() {
   try {
     const [ofertas, celulares, gaming, notebooks, componentes, accesorios, networking, impresoras, perfumes] = await Promise.all([
-      prisma.product.findMany({ where: { status:'ACTIVE', oldPrice:{ not:null } },                                           include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ createdAt:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Celulares' } },                                   include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Gaming' } },                                      include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Notebooks' } },                                   include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Componentes PC' } },                              include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Accesorios' }, NOT:{ name:{ contains:'perfume', mode:'insensitive' } } }, include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ createdAt:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Networking' } },                                  include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Impresoras' } },                                  include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
-      prisma.product.findMany({ where: { status:'ACTIVE', name:{ contains:'perfume', mode:'insensitive' } },                 include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ createdAt:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', oldPrice:{ not:null }, NOT:{ images:{ isEmpty:true } } },                                           include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ createdAt:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Celulares' },         NOT:{ images:{ isEmpty:true } } },                    include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Gaming' },            NOT:{ images:{ isEmpty:true } } },                    include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Notebooks' },         NOT:{ images:{ isEmpty:true } } },                    include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Componentes PC' },    NOT:{ images:{ isEmpty:true } } },                    include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Accesorios' }, NOT:[{ name:{ contains:'perfume', mode:'insensitive' } },{ images:{ isEmpty:true } }] }, include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ createdAt:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Networking' },        NOT:{ images:{ isEmpty:true } } },                    include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', category:{ name:'Impresoras' },        NOT:{ images:{ isEmpty:true } } },                    include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ price:'desc' } }),
+      prisma.product.findMany({ where: { status:'ACTIVE', name:{ contains:'perfume', mode:'insensitive' }, NOT:{ images:{ isEmpty:true } } },           include:{ category:{ select:{ name:true, slug:true } } }, take:16, orderBy:{ createdAt:'desc' } }),
     ])
     return { ofertas, celulares, gaming, notebooks, componentes, accesorios, networking, impresoras, perfumes }
   } catch {
