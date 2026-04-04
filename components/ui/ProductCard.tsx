@@ -24,9 +24,7 @@ export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore(s => s.addItem)
   const { rate } = useExchangeRate()
 
-  const priceUSD = product.specs?.priceUSD
-    ? parseFloat(product.specs.priceUSD)
-    : parseFloat((product.price / (rate || 7700)).toFixed(0))
+  const priceUSD = Math.round(product.price / (rate || 7700))
 
   const discount = product.oldPrice && product.oldPrice > product.price
     ? Math.round((1 - product.price / product.oldPrice) * 100) : null
