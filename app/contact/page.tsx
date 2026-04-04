@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Clock, MessageCircle, Send, CheckCircle } from 'lu
 const CONTACT_INFO = [
   { icon: MapPin,        label: 'Dirección',    value: 'Asunción, Paraguay' },
   { icon: Phone,         label: 'Teléfono',     value: '+595 971 117 959' },
-  { icon: Mail,          label: 'Email',        value: 'ventas@tecnovate.com.py' },
+  { icon: Mail,          label: 'Email',        value: 'tecnovate.py@gmail.com' },
   { icon: Clock,         label: 'Horario',      value: 'Lun – Vie 8:00–18:00 / Sáb 9:00–13:00' },
 ]
 

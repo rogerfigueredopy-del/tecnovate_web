@@ -39,7 +39,7 @@ export default function TermsPage() {
           <div className="space-y-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
             <p>Tecnovate es una empresa paraguaya con sede en <strong style={{ color: 'var(--text-primary)' }}>Asunción, Paraguay</strong>, dedicada a la comercialización de productos tecnológicos, electrónicos y artículos de consumo.</p>
             <p>Número de contacto: <strong style={{ color: 'var(--text-primary)' }}>+595 971 117 959</strong></p>
-            <p>Email: <strong style={{ color: 'var(--text-primary)' }}>ventas@tecnovate.com.py</strong></p>
+            <p>Email: <strong style={{ color: 'var(--text-primary)' }}>tecnovate.py@gmail.com</strong></p>
           </div>
         </Section>
 

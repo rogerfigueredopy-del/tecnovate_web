@@ -50,7 +50,7 @@ export default function AboutPage() {
             {[
               { icon: MapPin, label: 'Ubicación',value: 'Asunción, Paraguay — Envíos a todo el país' },
               { icon: Phone,  label: 'WhatsApp', value: '+595 971 117959' },
-              { icon: Mail,   label: 'Email',    value: 'ventas@tecnovate.com.py' },
+              { icon: Mail,   label: 'Email',    value: 'tecnovate.py@gmail.com' },
               { icon: Clock,  label: 'Horario',  value: 'Lun–Vie 8:00–18:00  |  Sáb 9:00–13:00' },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className='flex items-center gap-3 p-4 rounded-xl' style={{ background: 'var(--bg-secondary)' }}>

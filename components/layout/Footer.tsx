@@ -40,10 +40,10 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-bold mb-4 text-white">Contacto</h4>
             <ul className="space-y-3 text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              <li>📍 Ciudad del Este, Paraguay</li>
-              <li>📱 +595 9XX XXX XXX</li>
-              <li>✉️ ventas@tecnovate.com.py</li>
-              <li>🕐 Lun–Sáb 8:00–18:00</li>
+              <li>📍 Asunción, Paraguay</li>
+              <li>📱 +595 971 117 959</li>
+              <li>✉️ tecnovate.py@gmail.com</li>
+              <li>🕐 Lun–Vie 8:00–18:00 / Sáb 9:00–13:00</li>
             </ul>
           </div>
         </div>
