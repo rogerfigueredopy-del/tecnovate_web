@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/lib/store/cart'
-import { Search, ShoppingCart, User, ChevronDown, Menu, X, Heart, Package } from 'lucide-react'
+import { Search, ShoppingCart, User, ChevronDown, Menu, X, Heart, Package, Cpu } from 'lucide-react'
 import { ExchangeRateBadge } from '@/components/ui/ExchangeRateBadge'
 
 const MENU = [
@@ -268,11 +268,11 @@ export function Navbar() {
       {/* Main navbar */}
       <header className="bg-white border-b sticky top-0 z-50 shadow-sm" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-4 h-16">
+          <div className="flex items-center gap-4 h-20">
             {/* Logo */}
             <Link href="/" className="shrink-0 flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Tecnovate" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Tecnovate" style={{ height: 76, width: 'auto', objectFit: 'contain', imageRendering: 'crisp-edges' }} />
             </Link>
 
             {/* Search */}
@@ -429,13 +429,22 @@ export function Navbar() {
               ))}
 
               {/* Armar PC highlight */}
+              <style>{`
+                @keyframes gamerPulse {
+                  0%,100% { box-shadow: 0 0 12px 2px rgba(139,92,246,0.7), 0 0 24px 4px rgba(236,72,153,0.4); }
+                  50%     { box-shadow: 0 0 20px 4px rgba(139,92,246,0.9), 0 0 36px 8px rgba(236,72,153,0.6); }
+                }
+                .gamer-btn { animation: gamerPulse 2s ease-in-out infinite; }
+                .gamer-btn:hover { transform: scale(1.05); }
+              `}</style>
               <Link
                 href="/gamer"
-                className="ml-auto flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black text-white relative overflow-hidden"
-                style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 0 16px rgba(249,115,22,0.5)', letterSpacing: '0.02em' }}
+                className="gamer-btn ml-auto flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black text-white relative overflow-hidden transition-transform"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#ec4899)', letterSpacing: '0.03em' }}
               >
-                🖥️ Armá tu PC
-                <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(120deg,rgba(255,255,255,0.15) 0%,transparent 60%)' }} />
+                <Cpu size={15} strokeWidth={2.5} />
+                ARMÁ TU PC
+                <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(120deg,rgba(255,255,255,0.18) 0%,transparent 55%)' }} />
               </Link>
             </div>
           </div>
@@ -471,8 +480,8 @@ export function Navbar() {
             ))}
           </div>
           <div className="pt-4">
-            <Link href="/gamer" className="block text-center py-3 rounded-xl text-white font-bold" style={{ background: 'var(--accent)' }} onClick={() => setMobileOpen(false)}>
-              ⚡ Armá tu PC
+            <Link href="/gamer" className="flex items-center justify-center gap-2 py-3 rounded-xl text-white font-black" style={{ background: 'linear-gradient(135deg,#7c3aed,#ec4899)' }} onClick={() => setMobileOpen(false)}>
+              <Cpu size={16} /> ARMÁ TU PC
             </Link>
           </div>
         </div>
