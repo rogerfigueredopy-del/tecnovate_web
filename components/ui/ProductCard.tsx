@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ShoppingCart, Heart } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, fullImg } from '@/lib/utils'
 import { useExchangeRate } from '@/components/ui/ExchangeRate'
 import toast from 'react-hot-toast'
 
@@ -51,7 +51,7 @@ export function ProductCard({ product }: { product: Product }) {
       >
         <div className="relative bg-white" style={{ aspectRatio: '1', padding: '8px' }}>
           {product.images[0] ? (
-            <Image src={product.images[0]} alt={product.name} fill className="object-contain p-2 group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 50vw, 20vw" unoptimized />
+            <Image src={fullImg(product.images[0])} alt={product.name} fill className="object-contain p-2 group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 768px) 50vw, 20vw" unoptimized />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-4xl" style={{ color: '#ddd' }}>📦</div>
           )}

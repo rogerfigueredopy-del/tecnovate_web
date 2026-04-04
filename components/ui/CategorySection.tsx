@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { ShoppingCart, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, fullImg } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 const CATEGORY_BANNERS: Record<string, { bg: string; title: string; sub: string; badge: string; img?: string }> = {
@@ -36,7 +36,7 @@ function MiniCard({ product }: { product: any }) {
       style={{ border: '1px solid var(--border)' }}>
       <div className="relative bg-white flex items-center justify-center" style={{ height: '140px', padding: '10px' }}>
         {product.images?.[0]
-          ? <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain" />
+          ? <img src={fullImg(product.images[0])} alt={product.name} className="w-full h-full object-contain" />
           : <div className="text-4xl opacity-20">📦</div>}
         {discount && discount > 0 && (
           <span className="absolute top-2 left-2 text-white text-xs font-black px-1.5 py-0.5 rounded-lg" style={{ background: '#dc2626', fontSize: '10px' }}>

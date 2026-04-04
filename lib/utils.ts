@@ -21,3 +21,9 @@ export function formatPrice(price: number): string {
 export function clsx(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ')
 }
+
+/** Convierte URL de miniatura de atacadoconnect a imagen de alta calidad */
+export function fullImg(url: string | undefined | null): string {
+  if (!url) return ''
+  return url.replace('/thumb/', '/')
+}

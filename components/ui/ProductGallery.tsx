@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
+import { fullImg } from '@/lib/utils'
 import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Props { images: string[]; name: string }
@@ -32,7 +33,7 @@ export function ProductGallery({ images, name }: Props) {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={images[selected]}
+          src={fullImg(images[selected])}
           alt={name}
           className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
           style={{ padding: '16px' }}
@@ -75,7 +76,7 @@ export function ProductGallery({ images, name }: Props) {
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img} alt="" className="w-full h-full object-contain" />
+              <img src={fullImg(img)} alt="" className="w-full h-full object-contain" />
             </button>
           ))}
         </div>
@@ -101,7 +102,7 @@ export function ProductGallery({ images, name }: Props) {
             onClick={e => e.stopPropagation()}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={images[lbIndex]}
+              src={fullImg(images[lbIndex])}
               alt={name}
               className="max-w-full max-h-[80vh] object-contain rounded-xl"
               style={{ userSelect: 'none' }}
@@ -134,7 +135,7 @@ export function ProductGallery({ images, name }: Props) {
                   className="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center transition-all hover:scale-110"
                   style={{ border: i === lbIndex ? '2px solid var(--accent)' : '1.5px solid rgba(255,255,255,0.25)', background: 'rgba(255,255,255,0.08)', padding: '3px' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt="" className="w-full h-full object-contain" />
+                  <img src={fullImg(img)} alt="" className="w-full h-full object-contain" />
                 </button>
               ))}
             </div>

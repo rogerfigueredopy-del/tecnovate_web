@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { ShoppingCart } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, fullImg } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 // Tarjeta grande (ocupa 2 columnas o 2 filas)
@@ -19,7 +19,7 @@ function BigCard({ product }: { product: any }) {
       style={{ border: '1px solid var(--border)' }}>
       <div className="relative flex items-center justify-center flex-1 bg-white" style={{ minHeight: '220px', padding: '16px' }}>
         {product.images?.[0]
-          ? <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain" style={{ maxHeight: '200px' }} />
+          ? <img src={fullImg(product.images[0])} alt={product.name} className="w-full h-full object-contain" style={{ maxHeight: '200px' }} />
           : <div className="text-6xl opacity-20">📦</div>}
         {product.oldPrice && (
           <span className="absolute top-3 left-3 text-white text-xs font-black px-2 py-0.5 rounded-lg" style={{ background: '#dc2626' }}>
@@ -58,7 +58,7 @@ function SmallCard({ product }: { product: any }) {
       style={{ border: '1px solid var(--border)' }}>
       <div className="w-16 h-16 shrink-0 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
         {product.images?.[0]
-          ? <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain p-1" />
+          ? <img src={fullImg(product.images[0])} alt={product.name} className="w-full h-full object-contain p-1" />
           : <div className="text-2xl opacity-20">📦</div>}
       </div>
       <div className="flex-1 min-w-0">
