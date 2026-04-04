@@ -7,9 +7,10 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           <div className="col-span-2 md:col-span-1">
-            <span className="text-xl font-black block mb-3" style={{ color: '#d48fda' }}>Tecnovate</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Tecnovate" className="block mb-3" style={{ height: 72, width: 'auto', objectFit: 'contain' }} />
             <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
-              Tecnología de primera en Paraguay. Ciudad del Este, Alto Paraná.
+              Tecnología de primera en Paraguay. Asunción, Paraguay.
             </p>
           </div>
           <div>

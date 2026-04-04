@@ -75,13 +75,14 @@ function LoginPageInner() {
           style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
         />
         <div className="relative">
-          <Link href="/" className="text-3xl font-black text-white">Tecnovate</Link>
-          <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Tecnología de primera en Paraguay</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <Link href="/"><img src="/logo.png" alt="Tecnovate" style={{ height: 80, width: 'auto', objectFit: 'contain' }} /></Link>
+          <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.6)' }}>Tecnología de primera en Paraguay</p>
         </div>
         <div className="relative space-y-5">
           {[
             { icon: '🛡️', title: 'Compra segura',    desc: 'Pagos protegidos con Bancard y PayPal' },
-            { icon: '🚚', title: 'Envío express',     desc: 'Mismo día en Ciudad del Este' },
+            { icon: '🚚', title: 'Envío express',     desc: '24 h en Asunción y Gran Asunción' },
             { icon: '💜', title: 'Atención real',     desc: 'Equipo disponible por WhatsApp' },
           ].map(f => (
             <div key={f.title} className="flex items-start gap-3">
@@ -97,7 +98,7 @@ function LoginPageInner() {
           ))}
         </div>
         <p className="relative text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-          © {new Date().getFullYear()} Tecnovate. Ciudad del Este, Paraguay.
+          © {new Date().getFullYear()} Tecnovate. Asunción, Paraguay.
         </p>
       </div>
 
@@ -105,9 +106,8 @@ function LoginPageInner() {
       <div className="flex-1 flex flex-col items-center justify-center p-6">
 
         {/* Mobile logo */}
-        <Link href="/" className="lg:hidden text-2xl font-black mb-8" style={{ color: 'var(--accent)' }}>
-          Tecnovate
-        </Link>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <Link href="/" className="lg:hidden mb-8"><img src="/logo.png" alt="Tecnovate" style={{ height: 64, width: 'auto', objectFit: 'contain' }} /></Link>
 
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl p-8 shadow-lg" style={{ border: '1.5px solid var(--border)' }}>
