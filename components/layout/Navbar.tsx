@@ -161,6 +161,29 @@ const MENU = [
     ]
   },
   {
+    label: 'Nosotros',
+    href: '/about',
+    cols: [
+      {
+        title: 'La empresa',
+        items: [
+          { label: 'Quiénes somos',            href: '/about' },
+          { label: 'Contacto',                 href: '/contact' },
+          { label: 'Trabaja con nosotros',     href: '/careers' },
+        ]
+      },
+      {
+        title: 'Información',
+        items: [
+          { label: 'Envíos y Devoluciones',    href: '/shipping' },
+          { label: 'Métodos de pago',          href: '/payments' },
+          { label: 'Preguntas frecuentes',     href: '/faq' },
+          { label: 'Términos y Condiciones',   href: '/terms' },
+        ]
+      },
+    ]
+  },
+  {
     label: 'Accesorios',
     href: '/products?category=Accesorios',
     cols: [
@@ -237,6 +260,7 @@ export function Navbar() {
       <Link href="/track"   className="hover:underline opacity-90">Rastrear pedido</Link>
       <Link href="/about"   className="hover:underline opacity-90">Nosotros</Link>
       <Link href="/contact" className="hover:underline opacity-90">Contacto</Link>
+      <Link href="/faq"     className="hover:underline opacity-90">Preguntas frecuentes</Link>
     </div>
   </div>
 </div>
@@ -430,6 +454,20 @@ export function Navbar() {
               </Link>
             </div>
           ))}
+          <div className="border-b py-3 space-y-2" style={{ borderColor: 'var(--border)' }}>
+            <p className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Información</p>
+            {[
+              { label: 'Envíos y Devoluciones', href: '/shipping' },
+              { label: 'Métodos de pago',       href: '/payments' },
+              { label: 'Preguntas frecuentes',  href: '/faq' },
+              { label: 'Términos y Condiciones',href: '/terms' },
+              { label: 'Trabaja con nosotros',  href: '/careers' },
+            ].map(l => (
+              <Link key={l.href} href={l.href} className="block text-sm py-1" style={{ color: 'var(--text-secondary)' }} onClick={() => setMobileOpen(false)}>
+                {l.label}
+              </Link>
+            ))}
+          </div>
           <div className="pt-4">
             <Link href="/gamer" className="block text-center py-3 rounded-xl text-white font-bold" style={{ background: 'var(--accent)' }} onClick={() => setMobileOpen(false)}>
               ⚡ Armá tu PC

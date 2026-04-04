@@ -3,19 +3,19 @@ import { useState } from 'react'
 import { MapPin, Phone, Mail, Clock, MessageCircle, Send, CheckCircle } from 'lucide-react'
 
 const CONTACT_INFO = [
-  { icon: MapPin,        label: 'Dirección',    value: 'Ciudad del Este, Alto Paraná, Paraguay' },
-  { icon: Phone,         label: 'Teléfono',     value: '+595 984 000 001' },
+  { icon: MapPin,        label: 'Dirección',    value: 'Asunción, Paraguay' },
+  { icon: Phone,         label: 'Teléfono',     value: '+595 971 117 959' },
   { icon: Mail,          label: 'Email',        value: 'ventas@tecnovate.com.py' },
-  { icon: Clock,         label: 'Horario',      value: 'Lun – Sáb 8:00 – 18:00' },
+  { icon: Clock,         label: 'Horario',      value: 'Lun – Vie 8:00–18:00 / Sáb 9:00–13:00' },
 ]
 
 const WHATSAPP_TOPICS = [
-  { emoji: '💻', label: 'Notebooks y PCs' },
-  { emoji: '📱', label: 'Celulares' },
-  { emoji: '🎮', label: 'Gaming' },
-  { emoji: '🔧', label: 'Soporte técnico' },
-  { emoji: '📦', label: 'Mi pedido' },
-  { emoji: '💳', label: 'Pagos y envíos' },
+  { label: 'Notebooks y PCs' },
+  { label: 'Celulares' },
+  { label: 'Gaming' },
+  { label: 'Soporte técnico' },
+  { label: 'Mi pedido' },
+  { label: 'Pagos y envíos' },
 ]
 
 export default function ContactPage() {
@@ -208,19 +208,18 @@ export default function ContactPage() {
               {WHATSAPP_TOPICS.map(t => (
                 <a
                   key={t.label}
-                  href={`https://wa.me/595984000001?text=Hola! Consulta sobre: ${encodeURIComponent(t.label)}`}
+                  href={`https://wa.me/595971117959?text=Hola! Consulta sobre: ${encodeURIComponent(t.label)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 hover:shadow-sm"
                   style={{ border: '1.5px solid var(--border)', color: 'var(--text-primary)' }}
                 >
-                  <span>{t.emoji}</span>
                   {t.label}
                 </a>
               ))}
             </div>
             <a
-              href="https://wa.me/595984000001"
+              href="https://wa.me/595971117959"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02]"
