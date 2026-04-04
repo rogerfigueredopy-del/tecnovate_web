@@ -1,40 +1,57 @@
-'use client'
 import Link from 'next/link'
 
+// Tech primero, luego fragancias/belleza
 const BRANDS = [
-  { name: 'Apple',    q: 'apple',    color: '#1d1d1f' },
-  { name: 'Samsung',  q: 'samsung',  color: '#1428a0' },
-  { name: 'ASUS',     q: 'asus',     color: '#00539b' },
-  { name: 'MSI',      q: 'msi',      color: '#cc0000' },
-  { name: 'Lenovo',   q: 'lenovo',   color: '#e2231a' },
-  { name: 'HP',       q: 'hp',       color: '#0096d6' },
-  { name: 'Xiaomi',   q: 'xiaomi',   color: '#ff6900' },
-  { name: 'NVIDIA',   q: 'nvidia',   color: '#76b900' },
-  { name: 'AMD',      q: 'amd',      color: '#ed1c24' },
-  { name: 'Garmin',   q: 'garmin',   color: '#007CC3' },
+  { name: 'Apple',             img: '/brands/apple.png',            href: '/products?brand=APPLE' },
+  { name: 'Samsung',           img: '/brands/samsung.png',          href: '/products?brand=SAMSUNG' },
+  { name: 'Xiaomi',            img: '/brands/xiaomi.png',           href: '/products?brand=XIAOMI' },
+  { name: 'ASUS',              img: '/brands/asus.png',             href: '/products?brand=ASUS' },
+  { name: 'Sony',              img: '/brands/sony.png',             href: '/products?brand=SONY' },
+  { name: 'MSI',               img: '/brands/msi.png',              href: '/products?brand=MSI' },
+  { name: 'Corsair',           img: '/brands/corsair.png',          href: '/products?brand=CORSAIR' },
+  { name: 'Lenovo',            img: '/brands/lenovo.png',           href: '/products?brand=LENOVO' },
+  { name: 'HP',                img: '/brands/hp.png',               href: '/products?brand=HP' },
+  { name: 'Acer',              img: '/brands/acer.png',             href: '/products?brand=ACER' },
+  { name: 'Razer',             img: '/brands/razer.png',            href: '/products?brand=RAZER' },
+  { name: 'Nintendo',          img: '/brands/nintendo.png',         href: '/products?brand=NINTENDO' },
+  { name: 'Motorola',          img: '/brands/motorola.png',         href: '/products?brand=MOTOROLA' },
+  { name: 'Kingston',          img: '/brands/kingston.png',         href: '/products?brand=KINGSTON' },
+  { name: 'Gigabyte',          img: '/brands/gigabyte.png',         href: '/products?brand=GIGABYTE' },
+  { name: 'SanDisk',           img: '/brands/sandisk.png',          href: '/products?brand=SANDISK' },
+  { name: 'TP-Link',           img: '/brands/tp-link.png',          href: '/products?brand=TP-LINK' },
+  { name: 'JBL',               img: '/brands/jbl.png',              href: '/products?brand=JBL' },
+  { name: 'Redragon',          img: '/brands/redragon.png',         href: '/products?brand=REDRAGON' },
+  { name: 'Patriot',           img: '/brands/patriot.png',          href: '/products?brand=PATRIOT' },
+  { name: 'Creality',          img: '/brands/creality.png',         href: '/products?brand=CREALITY' },
+  { name: 'Lattafa',           img: '/brands/lattafa.png',          href: '/products?brand=LATTAFA' },
+  { name: 'Maison',            img: '/brands/maison.png',           href: '/products?brand=MAISON' },
+  { name: 'Armaf',             img: '/brands/armaf.png',            href: '/products?brand=ARMAF' },
+  { name: "Victoria's Secret", img: '/brands/victorias-secret.png', href: "/products?brand=VICTORIA'S SECRET" },
 ]
 
 export function BrandsBar() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-4">
-      <div className="bg-white rounded-2xl px-6 py-4" style={{ border: '1px solid var(--border)' }}>
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-white rounded-2xl px-5 py-4" style={{ border: '1px solid var(--border)' }}>
+        <div className="flex items-center justify-between mb-4">
           <p className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
             Marcas disponibles
           </p>
-          <Link href="/products" className="text-xs font-black" style={{ color: 'var(--accent)' }}>
+          <Link href="/products" className="text-xs font-bold hover:underline" style={{ color: 'var(--accent)' }}>
             Ver todas →
           </Link>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
           {BRANDS.map(b => (
             <Link
               key={b.name}
-              href={`/products?q=${b.q}`}
-              className="shrink-0 px-4 py-2 rounded-xl text-xs font-black transition-all hover:-translate-y-0.5 hover:shadow-md whitespace-nowrap"
-              style={{ border: '1.5px solid var(--border)', color: b.color, background: `${b.color}08` }}
+              href={b.href}
+              title={b.name}
+              className="shrink-0 flex items-center justify-center rounded-xl transition-all hover:scale-105 hover:shadow-md"
+              style={{ width: 72, height: 72, border: '1.5px solid var(--border)', background: 'white', padding: '6px' }}
             >
-              {b.name}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={b.img} alt={b.name} style={{ width: 60, height: 60, objectFit: 'contain' }} />
             </Link>
           ))}
         </div>
