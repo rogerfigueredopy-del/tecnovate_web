@@ -161,29 +161,6 @@ const MENU = [
     ]
   },
   {
-    label: 'Nosotros',
-    href: '/about',
-    cols: [
-      {
-        title: 'La empresa',
-        items: [
-          { label: 'Quiénes somos',            href: '/about' },
-          { label: 'Contacto',                 href: '/contact' },
-          { label: 'Trabaja con nosotros',     href: '/careers' },
-        ]
-      },
-      {
-        title: 'Información',
-        items: [
-          { label: 'Envíos y Devoluciones',    href: '/shipping' },
-          { label: 'Métodos de pago',          href: '/payments' },
-          { label: 'Preguntas frecuentes',     href: '/faq' },
-          { label: 'Términos y Condiciones',   href: '/terms' },
-        ]
-      },
-    ]
-  },
-  {
     label: 'Accesorios',
     href: '/products?category=Accesorios',
     cols: [
@@ -214,6 +191,29 @@ const MENU = [
           { label: 'Fundas y Protectores',        href: '/products?category=Accesorios&q=funda' },
           { label: 'Cargadores Portátiles',       href: '/products?category=Accesorios&q=cargador' },
           { label: 'Ver todo Accesorios',         href: '/products?category=Accesorios' },
+        ]
+      },
+    ]
+  },
+  {
+    label: 'Nosotros',
+    href: '/about',
+    cols: [
+      {
+        title: 'La empresa',
+        items: [
+          { label: 'Quiénes somos',            href: '/about' },
+          { label: 'Contacto',                 href: '/contact' },
+          { label: 'Trabaja con nosotros',     href: '/careers' },
+        ]
+      },
+      {
+        title: 'Información',
+        items: [
+          { label: 'Envíos y Devoluciones',    href: '/shipping' },
+          { label: 'Métodos de pago',          href: '/payments' },
+          { label: 'Preguntas frecuentes',     href: '/faq' },
+          { label: 'Términos y Condiciones',   href: '/terms' },
         ]
       },
     ]
