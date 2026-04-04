@@ -271,7 +271,8 @@ export function Navbar() {
           <div className="flex items-center gap-4 h-16">
             {/* Logo */}
             <Link href="/" className="shrink-0 flex items-center gap-2">
-              <span className="text-2xl font-black" style={{ color: 'var(--accent)' }}>Tecnovate</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="Tecnovate" style={{ height: 44, width: 'auto', objectFit: 'contain' }} />
             </Link>
 
             {/* Search */}
@@ -430,10 +431,12 @@ export function Navbar() {
               {/* Armar PC highlight */}
               <Link
                 href="/gamer"
-                className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))' }}
+                className="ml-auto flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black text-white relative overflow-hidden"
+                style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 0 16px rgba(249,115,22,0.5)', letterSpacing: '0.02em' }}
               >
-                ⚡ Armá tu PC
+                <span style={{ fontSize: 16 }}>⚡</span>
+                Armá tu PC
+                <span className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(120deg,rgba(255,255,255,0.15) 0%,transparent 60%)' }} />
               </Link>
             </div>
           </div>
