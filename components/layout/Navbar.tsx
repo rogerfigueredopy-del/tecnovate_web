@@ -346,21 +346,7 @@ export function Navbar() {
         <div className="hidden lg:block border-t" style={{ borderColor: 'var(--border)', background: 'white' }} ref={menuRef}>
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center gap-1">
-              {/* All categories button */}
-              <div className="relative">
-                <button
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-700 text-white rounded-none"
-                  style={{ background: 'var(--accent)', fontWeight: 700 }}
-                  onMouseEnter={() => setOpenMenu('all')}
-                  onMouseLeave={() => setOpenMenu(null)}
-                >
-                  <Menu size={16} />
-                  Categorías
-                  <ChevronDown size={14} />
-                </button>
-              </div>
-
-              {MENU.map(item => (
+{MENU.map(item => (
                 <div
                   key={item.label}
                   className="relative"
