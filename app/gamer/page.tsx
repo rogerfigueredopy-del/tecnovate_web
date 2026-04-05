@@ -435,6 +435,7 @@ export default function GamerPage() {
   const [loadingComps, setLoadingComps] = useState(false)
   const [searchComp, setSearchComp] = useState('')
   const [compat, setCompat] = useState<{ ok: boolean; issues: string[]; warnings: string[] } | null>(null)
+  const [showOnlyCompatible, setShowOnlyCompatible] = useState(false)
   const addItem = useCartStore(s => s.addItem)
 
   useEffect(() => {
@@ -445,15 +446,14 @@ export default function GamerPage() {
   const openSlotModal = async (slotKey: string) => {
     setOpenSlot(slotKey)
     setSearchComp('')
+    setShowOnlyCompatible(false)
     if (allComponents[slotKey]) { setComponents(allComponents[slotKey]); return }
     setLoadingComps(true)
     try {
-      const q = slotKey === 'GPU' ? 'tarjeta+gr' : slotKey === 'CPU' ? 'procesador' : slotKey === 'MOTHERBOARD' ? 'placa+madre' : slotKey === 'RAM' ? 'memoria+ram' : slotKey === 'STORAGE' ? 'ssd' : slotKey === 'PSU' ? 'fuente+de+alimentacion' : slotKey === 'CASE' ? 'gabinete' : slotKey === 'COOLING' ? 'cooler' : ''
-      const res = await fetch(`/api/products?limit=100&q=${q}`)
-      const data = await res.json()
-      const items = data.products || []
-      setComponents(items)
-      setAllComponents(prev => ({ ...prev, [slotKey]: items }))
+      const res = await fetch(`/api/pc-builder?slot=${slotKey}`)
+      const items = await res.json()
+      setComponents(Array.isArray(items) ? items : [])
+      setAllComponents(prev => ({ ...prev, [slotKey]: Array.isArray(items) ? items : [] }))
     } catch { setComponents([]) }
     finally { setLoadingComps(false) }
   }
@@ -480,9 +480,23 @@ export default function GamerPage() {
     toast.success(`🛒 ${items.length} componentes agregados al carrito!`)
   }
 
-  const filteredComponents = components.filter(c =>
-    !searchComp || c.name.toLowerCase().includes(searchComp.toLowerCase()) || (c.brand || '').toLowerCase().includes(searchComp.toLowerCase())
-  )
+  const filteredComponents = components
+    .filter((c: any) => {
+      const matchSearch = !searchComp || c.name.toLowerCase().includes(searchComp.toLowerCase()) || (c.brand || '').toLowerCase().includes(searchComp.toLowerCase())
+      if (!matchSearch) return false
+      if (showOnlyCompatible) {
+        const hint = checkCompatibility({ ...build, [openSlot!]: c })
+        return hint.issues.length === 0
+      }
+      return true
+    })
+    .sort((a: any, b: any) => {
+      const aOk = checkCompatibility({ ...build, [openSlot!]: a }).issues.length === 0
+      const bOk = checkCompatibility({ ...build, [openSlot!]: b }).issues.length === 0
+      if (aOk && !bOk) return -1
+      if (!aOk && bOk) return 1
+      return 0
+    })
 
   const getCompatHint = (comp: any) => {
     if (!openSlot) return null
@@ -512,6 +526,14 @@ export default function GamerPage() {
         .g-comp-row { transition: background .12s, border-color .12s; cursor: pointer; }
         .g-comp-row:hover { background: #161b22 !important; border-color: #00b4d8 !important; }
         .prog-bar { transition: width .6s cubic-bezier(.4,0,.2,1); }
+        /* Slot card responsive */
+        .slot-row { display: flex; align-items: center; gap: 16px; padding: 14px 20px 14px 24px; flex-wrap: wrap; }
+        .slot-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; margin-left: auto; }
+        @media (max-width: 480px) {
+          .slot-row { gap: 10px; padding: 12px 14px 12px 18px; }
+          .slot-actions { width: 100%; justify-content: flex-end; margin-top: 4px; }
+          .slot-name-text { font-size: 10px !important; }
+        }
       `}</style>
 
       {/* ── HEADER ─────────────────────────────────────── */}
@@ -660,7 +682,7 @@ export default function GamerPage() {
                 <div key={slot.key} className="g-slot rounded-xl overflow-hidden"
                   style={{ background: '#161b22', border: `1px solid ${border}`, position: 'relative' }}>
                   <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: bar, borderRadius: '12px 0 0 12px' }} />
-                  <div className="flex items-center gap-4 px-5 py-4 pl-6">
+                  <div className="slot-row">
 
                     <div style={{
                       width: 40, height: 40, borderRadius: 10, flexShrink: 0,
@@ -700,7 +722,7 @@ export default function GamerPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3" style={{ flexShrink: 0 }}>
+                    <div className="slot-actions">
                       {selected && <p style={{ fontSize: 13, fontWeight: 900, color: '#00b4d8' }}>{formatPrice(selected.price)}</p>}
                       <button onClick={() => openSlotModal(slot.key)}
                         className="g-btn px-4 py-1.5 rounded-lg text-xs font-black"
@@ -732,7 +754,7 @@ export default function GamerPage() {
           onClick={e => { if (e.target === e.currentTarget) setOpenSlot(null) }}>
 
           <div className="w-full max-w-2xl flex flex-col rounded-2xl overflow-hidden"
-            style={{ maxHeight: '88vh', background: '#161b22', border: '1px solid #30363d', boxShadow: '0 28px 72px rgba(0,0,0,.7), 0 0 0 1px rgba(0,180,216,.12)' }}>
+            style={{ maxHeight: '92vh', background: '#161b22', border: '1px solid #30363d', boxShadow: '0 28px 72px rgba(0,0,0,.7), 0 0 0 1px rgba(0,180,216,.12)' }}>
 
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #21262d' }}>
               <div className="flex items-center gap-3">
@@ -747,7 +769,7 @@ export default function GamerPage() {
               </button>
             </div>
 
-            <div className="px-4 py-3" style={{ borderBottom: '1px solid #21262d' }}>
+            <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: '1px solid #21262d' }}>
               <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: '#0d1117', border: '1px solid #30363d' }}>
                 <Search size={14} style={{ color: '#484f58' }} />
                 <input autoFocus value={searchComp} onChange={e => setSearchComp(e.target.value)}
@@ -755,6 +777,21 @@ export default function GamerPage() {
                   className="flex-1 bg-transparent outline-none text-sm"
                   style={{ color: '#e6edf3' }} />
               </div>
+              {/* Filtro compatibilidad — solo si hay algo ya seleccionado */}
+              {Object.keys(build).length > 0 && (
+                <button
+                  onClick={() => setShowOnlyCompatible((v: boolean) => !v)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold self-start"
+                  style={{
+                    background: showOnlyCompatible ? 'rgba(63,185,80,.15)' : '#0d1117',
+                    border: `1px solid ${showOnlyCompatible ? 'rgba(63,185,80,.5)' : '#30363d'}`,
+                    color: showOnlyCompatible ? '#3fb950' : '#8b949e',
+                    transition: 'all .15s',
+                  }}>
+                  <CheckCircle size={12} />
+                  {showOnlyCompatible ? 'Solo compatibles ✓' : 'Mostrar solo compatibles'}
+                </button>
+              )}
             </div>
 
             <div className="overflow-y-auto flex-1 p-3 space-y-1.5">
@@ -769,44 +806,46 @@ export default function GamerPage() {
                 const isSelected = build[openSlot!]?.id === comp.id
                 const hint = getCompatHint(comp)
                 return (
-                  <div key={comp.id} onClick={() => selectComponent(comp)} className="g-comp-row flex items-center gap-4 p-3 rounded-xl"
-                    style={{ background: isSelected ? 'rgba(0,180,216,.07)' : '#0d1117', border: `1px solid ${isSelected ? '#00b4d8' : '#21262d'}` }}>
+                  <div key={comp.id} onClick={() => selectComponent(comp)} className="g-comp-row rounded-xl"
+                    style={{ background: isSelected ? 'rgba(0,180,216,.07)' : '#0d1117', border: `1px solid ${isSelected ? '#00b4d8' : '#21262d'}`, padding: '10px 12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
 
-                    <div style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#161b22', border: '1px solid #30363d' }}>
-                      {comp.images?.[0]
-                        ? <img src={comp.images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
-                        : (() => { const Icon = SLOT_ICONS[openSlot!] || Cpu; return <Icon size={20} style={{ color: '#30363d' }} /> })()}
-                    </div>
+                      <div style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#161b22', border: '1px solid #30363d' }}>
+                        {comp.images?.[0]
+                          ? <img src={comp.images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
+                          : (() => { const Icon = SLOT_ICONS[openSlot!] || Cpu; return <Icon size={18} style={{ color: '#30363d' }} /> })()}
+                      </div>
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 11, fontWeight: 700, color: '#00b4d8', marginBottom: 2 }}>{comp.brand}</p>
-                      <p style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3', lineHeight: 1.35 }}>{comp.name}</p>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        {hint && (
-                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 999, fontWeight: 700, background: hint.ok ? 'rgba(63,185,80,.1)' : 'rgba(248,81,73,.1)', color: hint.ok ? '#3fb950' : '#f85149' }}>
-                            {hint.ok ? '✓ Compatible' : '✗ Incompatible'}
-                          </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 10, fontWeight: 700, color: '#00b4d8', marginBottom: 1 }}>{comp.brand}</p>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3', lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{comp.name}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                          {hint && (
+                            <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 999, fontWeight: 700, background: hint.ok ? 'rgba(63,185,80,.1)' : 'rgba(248,81,73,.1)', color: hint.ok ? '#3fb950' : '#f85149' }}>
+                              {hint.ok ? '✓ Compatible' : '✗ Incompatible'}
+                            </span>
+                          )}
+                          {(openSlot === 'CPU' || openSlot === 'MOTHERBOARD') && extractSocket(comp.name) && (
+                            <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 999, background: '#21262d', color: '#8b949e' }}>{extractSocket(comp.name)}</span>
+                          )}
+                          {openSlot === 'PSU' && extractPSUWatt(comp.name) > 0 && (
+                            <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 999, background: '#21262d', color: '#8b949e' }}>{extractPSUWatt(comp.name)}W</span>
+                          )}
+                          {openSlot === 'RAM' && extractRAMType(comp.name) && (
+                            <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 999, background: '#21262d', color: '#8b949e' }}>{extractRAMType(comp.name)}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        {comp.oldPrice && comp.oldPrice > comp.price && (
+                          <p style={{ fontSize: 10, textDecoration: 'line-through', color: '#484f58' }}>{formatPrice(comp.oldPrice)}</p>
                         )}
-                        {(openSlot === 'CPU' || openSlot === 'MOTHERBOARD') && extractSocket(comp.name) && (
-                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 999, background: '#21262d', color: '#8b949e' }}>{extractSocket(comp.name)}</span>
-                        )}
-                        {openSlot === 'PSU' && extractPSUWatt(comp.name) > 0 && (
-                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 999, background: '#21262d', color: '#8b949e' }}>{extractPSUWatt(comp.name)}W</span>
-                        )}
-                        {openSlot === 'RAM' && extractRAMType(comp.name) && (
-                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 999, background: '#21262d', color: '#8b949e' }}>{extractRAMType(comp.name)}</span>
+                        <p style={{ fontSize: 13, fontWeight: 900, color: '#00b4d8' }}>{formatPrice(comp.price)}</p>
+                        {isSelected && (
+                          <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 999, fontWeight: 900, marginTop: 3, display: 'inline-block', background: 'rgba(0,180,216,.18)', color: '#00b4d8' }}>✓ ELEGIDO</span>
                         )}
                       </div>
-                    </div>
-
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      {comp.oldPrice && comp.oldPrice > comp.price && (
-                        <p style={{ fontSize: 11, textDecoration: 'line-through', color: '#484f58' }}>{formatPrice(comp.oldPrice)}</p>
-                      )}
-                      <p style={{ fontSize: 13, fontWeight: 900, color: '#00b4d8' }}>{formatPrice(comp.price)}</p>
-                      {isSelected && (
-                        <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 999, fontWeight: 900, marginTop: 3, display: 'inline-block', background: 'rgba(0,180,216,.18)', color: '#00b4d8' }}>✓ ELEGIDO</span>
-                      )}
                     </div>
                   </div>
                 )
