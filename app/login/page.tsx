@@ -83,7 +83,7 @@ function LoginPageInner() {
 
         <div className="relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <Link href="/"><img src="/logo.png" alt="Tecnovate" style={{ height: 80, width: 'auto', objectFit: 'contain' }} /></Link>
+          <Link href="/"><img src="/logo.png" alt="Tecnovate" style={{ height: 100, width: 'auto', objectFit: 'contain' }} /></Link>
           <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.55)' }}>Tecnología de primera en Paraguay</p>
         </div>
 
@@ -111,7 +111,7 @@ function LoginPageInner() {
 
         {/* Mobile logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <Link href="/" className="lg:hidden mb-6 block"><img src="/logo.png" alt="Tecnovate" style={{ height: 60, width: 'auto', objectFit: 'contain' }} /></Link>
+        <Link href="/" className="lg:hidden mb-6 block"><img src="/logo.png" alt="Tecnovate" style={{ height: 80, width: 'auto', objectFit: 'contain' }} /></Link>
 
         <div className="w-full max-w-sm">
 

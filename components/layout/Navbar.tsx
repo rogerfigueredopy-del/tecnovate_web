@@ -268,11 +268,11 @@ export function Navbar() {
       {/* Main navbar */}
       <header className="bg-white border-b sticky top-0 z-50 shadow-sm" style={{ borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-4 h-24">
+          <div className="flex items-center gap-4 h-28">
             {/* Logo */}
             <Link href="/" className="shrink-0 flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Tecnovate" style={{ height: 88, width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Tecnovate" style={{ height: 108, width: 'auto', objectFit: 'contain' }} />
             </Link>
 
             {/* Search */}
