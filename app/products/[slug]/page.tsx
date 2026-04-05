@@ -5,7 +5,7 @@ import { ProductPageClient } from '@/components/ui/ProductPageClient'
 import { ProductGallery }   from '@/components/ui/ProductGallery'
 import { ProductGrid } from '@/components/ui/ProductGrid'
 import { formatPrice } from '@/lib/utils'
-import { ChevronRight, Star, ShieldCheck, Truck, RotateCcw, Package } from 'lucide-react'
+import { ChevronRight, Star, ShieldCheck, Truck, Package } from 'lucide-react'
 
 async function getUsdRate(): Promise<number> {
   try {
@@ -33,8 +33,7 @@ function safePrice(val: any): number {
 
 const GUARANTEES = [
   { icon: ShieldCheck, text: 'Garantía oficial' },
-  { icon: Truck,       text: 'Envío express CDE' },
-  { icon: RotateCcw,   text: '30 días devolución' },
+  { icon: Truck,       text: 'Envíos a todo Paraguay' },
   { icon: Package,     text: 'Producto original' },
 ]
 

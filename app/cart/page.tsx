@@ -246,8 +246,8 @@ export default function CartPage() {
             <div className="rounded-2xl p-4" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-light)' }}>
               {[
                 '🛡️ Compra 100% segura',
-                '🚚 Envío express Ciudad del Este',
-                '🔄 30 días de devolución',
+                '🚚 Envíos a todo Paraguay',
+                '📦 Garantía oficial del fabricante',
               ].map(g => (
                 <p key={g} className="text-xs font-semibold py-1" style={{ color: 'var(--text-secondary)' }}>{g}</p>
               ))}

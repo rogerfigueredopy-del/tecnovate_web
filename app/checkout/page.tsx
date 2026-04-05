@@ -5,8 +5,7 @@ import { useCartStore } from '@/lib/store/cart'
 import { formatPrice } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { PayPalButtons } from '@paypal/react-paypal-js'
-import { CreditCard, Globe, Banknote, Phone, Loader2, MapPin, ChevronDown, ShieldCheck, Lock } from 'lucide-react'
+import { CreditCard, Banknote, Phone, Loader2, MapPin, ChevronDown, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const DEPARTMENTS = [
@@ -16,13 +15,13 @@ const DEPARTMENTS = [
 ]
 
 const PAYMENT_METHODS = [
-  { id: 'bancard',  icon: '💳', label: 'Bancard',         desc: 'Visa, Mastercard, Amex' },
-  { id: 'paypal',   icon: '🌐', label: 'PayPal',          desc: 'Pago internacional' },
-  { id: 'transfer', icon: '📱', label: 'Tigo Money',      desc: 'Transferencia bancaria' },
-  { id: 'cash',     icon: '💵', label: 'Efectivo / WS',   desc: 'Coordinamos por WhatsApp' },
+  { id: 'bancard',  icon: '💳', label: 'POS Bancard',          desc: 'Tarjeta en el momento de entrega' },
+  { id: 'transfer', icon: '🏦', label: 'Transferencia bancaria', desc: 'Tigo Money, Personal Pay, banco' },
+  { id: 'cash',     icon: '💵', label: 'Efectivo / WhatsApp',   desc: 'Coordinamos el pago con vos' },
 ] as const
 
 type PayMethod = typeof PAYMENT_METHODS[number]['id']
+const LIMIT_50_PCT = 10_000_000
 
 const inputCls = "w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-colors"
 const inputStyle = { border: '1.5px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
@@ -38,12 +37,14 @@ export default function CheckoutPage() {
   const { items, total, clearCart } = useCartStore()
   const router = useRouter()
 
-  const [payMethod, setPayMethod] = useState<PayMethod>('bancard')
+  const [payMethod, setPayMethod] = useState<PayMethod>('transfer')
+  const requires50Pct = grandTotal > LIMIT_50_PCT
   const [address, setAddress] = useState({
     street: '', city: 'Ciudad del Este', department: 'Alto Paraná', phone: '',
   })
   const [loading, setLoading] = useState(false)
   const grandTotal = total()
+  const halfTotal = Math.round(grandTotal / 2)
 
   const setAddr = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setAddress(a => ({ ...a, [k]: e.target.value }))
@@ -198,6 +199,20 @@ export default function CheckoutPage() {
                 <CreditCard size={17} style={{ color: 'var(--accent)' }} />
                 Método de pago
               </h2>
+              {/* Aviso 50% para compras > 10M */}
+              {requires50Pct && (
+                <div className="flex items-start gap-3 p-4 rounded-xl mb-4" style={{ background: '#fefce8', border: '1.5px solid #fde047' }}>
+                  <span className="text-lg shrink-0">⚠️</span>
+                  <div>
+                    <p className="font-black text-xs mb-1" style={{ color: '#854d0e' }}>Compra mayor a ₲ 10.000.000</p>
+                    <p className="text-xs" style={{ color: '#713f12' }}>
+                      Se requiere el <strong>50% ({formatPrice(halfTotal)})</strong> por transferencia bancaria antes del despacho.
+                      El saldo restante puede abonarse antes del envío o contra entrega en Asunción.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {PAYMENT_METHODS.map(m => (
                   <button
@@ -221,13 +236,23 @@ export default function CheckoutPage() {
               </div>
 
               {/* Info contextual por método */}
+              {payMethod === 'bancard' && (
+                <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-light)' }}>
+                  <p className="font-black text-xs mb-1" style={{ color: 'var(--accent)' }}>POS Bancard — Terminal física</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    Pagás con tu tarjeta en el momento de la entrega o retiro. Aceptamos Visa, Mastercard y Amex.
+                    {requires50Pct && <strong style={{ color: '#854d0e' }}> Recordá que el 50% debe abonarse por transferencia antes del despacho.</strong>}
+                  </p>
+                </div>
+              )}
               {payMethod === 'transfer' && (
                 <div className="rounded-xl p-4 text-sm space-y-1" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-light)' }}>
-                  <p className="font-black text-xs mb-2" style={{ color: 'var(--accent)' }}>Datos para transferencia — Tigo Money</p>
-                  <p style={{ color: 'var(--text-secondary)' }}>📱 Número: <strong>+595 984 000 001</strong></p>
-                  <p style={{ color: 'var(--text-secondary)' }}>👤 Nombre: <strong>Tecnovate SRL</strong></p>
+                  <p className="font-black text-xs mb-2" style={{ color: 'var(--accent)' }}>Datos para transferencia</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>📱 Tigo Money / Personal Pay: <strong>+595 971 117 959</strong></p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>👤 Titular: <strong>Tecnovate</strong></p>
                   <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-                    Enviá el comprobante por WhatsApp para confirmar tu pedido.
+                    Enviá el comprobante por WhatsApp al confirmar el pedido.
+                    {requires50Pct && <strong style={{ color: '#854d0e' }}> Monto mínimo requerido: {formatPrice(halfTotal)}.</strong>}
                   </p>
                 </div>
               )}
@@ -235,7 +260,8 @@ export default function CheckoutPage() {
                 <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-light)' }}>
                   <p className="font-black text-xs mb-1" style={{ color: 'var(--accent)' }}>Coordinamos por WhatsApp</p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                    Después de confirmar tu pedido nos comunicamos para coordinar la entrega o el retiro en local.
+                    Confirmá el pedido y te contactamos para coordinar entrega o retiro.
+                    {requires50Pct && <strong style={{ color: '#854d0e' }}> Atención: compras mayores a ₲ 10.000.000 requieren 50% por transferencia antes del despacho.</strong>}
                   </p>
                 </div>
               )}
@@ -243,65 +269,29 @@ export default function CheckoutPage() {
               {/* Botón de pago */}
               <div className="mt-5">
                 {payMethod === 'bancard' && (
-                  <button
-                    onClick={handleBancard}
-                    disabled={loading}
+                  <button onClick={handleBancard} disabled={loading}
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-60"
-                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}
-                  >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : '💳'}
-                    {loading ? 'Procesando...' : `Pagar ${formatPrice(grandTotal)} con Bancard`}
+                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}>
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
+                    {loading ? 'Procesando...' : 'Confirmar pedido — POS Bancard'}
                   </button>
                 )}
 
-                {payMethod === 'paypal' && (
-                  <div className="rounded-xl overflow-hidden">
-                    <PayPalButtons
-                      style={{ layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }}
-                      createOrder={async () => {
-                        const order = await createOrder()
-                        const res = await fetch('/api/payments', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ method: 'paypal', orderId: order.id, amount: grandTotal }),
-                        })
-                        const data = await res.json()
-                        return data.paypalOrderId
-                      }}
-                      onApprove={async (data) => {
-                        await fetch('/api/payments', {
-                          method: 'PATCH',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ paypalOrderId: data.orderID }),
-                        })
-                        clearCart()
-                        router.push('/checkout/success?method=paypal')
-                      }}
-                    />
-                  </div>
-                )}
-
                 {payMethod === 'transfer' && (
-                  <button
-                    onClick={handleTransfer}
-                    disabled={loading}
+                  <button onClick={handleTransfer} disabled={loading}
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-60"
-                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}
-                  >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : '📱'}
-                    {loading ? 'Procesando...' : 'Confirmar pedido — Tigo Money'}
+                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}>
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Banknote size={16} />}
+                    {loading ? 'Procesando...' : requires50Pct ? `Confirmar pedido — Pagar ${formatPrice(halfTotal)} ahora` : 'Confirmar pedido — Transferencia'}
                   </button>
                 )}
 
                 {payMethod === 'cash' && (
-                  <button
-                    onClick={handleCash}
-                    disabled={loading}
+                  <button onClick={handleCash} disabled={loading}
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm transition-all hover:scale-[1.02] disabled:opacity-60"
-                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}
-                  >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : '💵'}
-                    {loading ? 'Procesando...' : 'Confirmar pedido — Pagar al recibir'}
+                    style={{ background: 'var(--accent)', boxShadow: '0 4px 14px rgba(183,105,189,0.35)' }}>
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Phone size={16} />}
+                    {loading ? 'Procesando...' : 'Confirmar pedido — Coordinamos por WhatsApp'}
                   </button>
                 )}
               </div>
@@ -356,7 +346,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mt-5 space-y-1.5">
-                {['🛡️ Compra 100% segura', '🔄 30 días de devolución', '📦 Garantía oficial'].map(g => (
+                {['🛡️ Compra 100% segura', '📦 Garantía oficial del fabricante', '💬 Soporte por WhatsApp'].map(g => (
                   <p key={g} className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{g}</p>
                 ))}
               </div>

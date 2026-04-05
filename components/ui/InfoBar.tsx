@@ -1,11 +1,11 @@
 'use client'
-import { Truck, CreditCard, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Truck, CreditCard, ShieldCheck, MessageCircle } from 'lucide-react'
 
 const ITEMS = [
-  { icon: Truck,       title: 'Envío Express',    desc: 'Ciudad del Este mismo día' },
-  { icon: CreditCard,  title: 'Pagos seguros',    desc: 'Bancard · PayPal · Efectivo' },
-  { icon: RefreshCw,   title: 'Devoluciones',     desc: '30 días sin preguntas' },
-  { icon: ShieldCheck, title: 'Garantía oficial', desc: 'Todos los productos' },
+  { icon: Truck,          title: 'Envíos a todo Paraguay', desc: '24 h Asunción · 2-5 días interior' },
+  { icon: CreditCard,     title: 'Pagos seguros',          desc: 'POS Bancard · Transferencia · Efectivo' },
+  { icon: ShieldCheck,    title: 'Garantía oficial',       desc: 'Todos los productos' },
+  { icon: MessageCircle,  title: 'Soporte real',           desc: 'Equipo disponible por WhatsApp' },
 ]
 
 export function InfoBar() {
