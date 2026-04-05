@@ -38,13 +38,13 @@ export default function CheckoutPage() {
   const router = useRouter()
 
   const [payMethod, setPayMethod] = useState<PayMethod>('transfer')
-  const requires50Pct = grandTotal > LIMIT_50_PCT
   const [address, setAddress] = useState({
-    street: '', city: 'Ciudad del Este', department: 'Alto Paraná', phone: '',
+    street: '', city: 'Asunción', department: 'Central', phone: '',
   })
   const [loading, setLoading] = useState(false)
   const grandTotal = total()
   const halfTotal = Math.round(grandTotal / 2)
+  const requires50Pct = grandTotal > LIMIT_50_PCT
 
   const setAddr = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setAddress(a => ({ ...a, [k]: e.target.value }))
